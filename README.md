@@ -4,6 +4,7 @@ manages dialects words
 
 ## word schema
 
+
 - word
   - id
   - tags (VARCHAR, comma separated_values, no comma allowed, hashtag) -> transformed to #xxx#xxx#xxxx

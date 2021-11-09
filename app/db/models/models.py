@@ -1,7 +1,7 @@
 from sqlalchemy import Column, String, DateTime
 from sqlalchemy.sql.schema import ForeignKey, UniqueConstraint
 from sqlalchemy.sql.sqltypes import BigInteger, Boolean, Integer
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relation, relationship
 from .base import Base
 
 
@@ -30,6 +30,11 @@ class User(Base):
     # we can add more things here like if the user's email has been verified
     # however the authen will reject him if email not verified..
 
+    # user is parent to all things below
+    words = relationship("Word", back_populates="creator")
+    suggestions = relationship("Suggestion", back_populates="creator")
+    field_versions = relationship("FieldVersion", back_populates="creator")
+
 
 class Word(Base):
     __tablename__ = "words"
@@ -44,8 +49,11 @@ class Word(Base):
     modified_at = Column(DateTime, nullable=False)
     created_by = Column(String, ForeignKey("users.id"), nullable=False)
 
-    # well here i dont want to add any relation.. it could be very messy
-    # need to use aio something to fetch the right field versions
+    # User is the parent of this
+    creator = relationship("User", back_populates="words")
+
+    # this is the parent of field versions
+    field_versions = relationship("FieldVersion", back_populates="word")
 
 
 class FieldVersion(Base):
@@ -64,20 +72,30 @@ class FieldVersion(Base):
     up_votes = Column(Integer, nullable=False)
     down_votes = Column(Integer, nullable=False)
 
+    # field version is the parant of suggestions
     suggestions = relationship("Suggestion", back_populates="field_version")
+    # User is the parent of this
+    creator = relationship("User", back_populates="field_versions")
+    # word owns it, and no need back polupations
+    word = relationship("Word", back_populates="field_versions")
 
 
 class Suggestion(Base):
     __tablename__ = "suggestions"
 
     id = Column(String, primary_key=True, index=True)
+
+    word_id = Column(String, ForeignKey("words.id"), nullable=False)
+    version_id = Column(String, ForeignKey("field_versions.id"), nullable=False)
+    content = Column(String, nullable=False)
+
+    accepted = Column(Boolean, nullable=False)
+
     created_at = Column(DateTime, nullable=False)
     modified_at = Column(DateTime, nullable=False)
     created_by = Column(String, ForeignKey("users.id"), nullable=False)
-    word_id = Column(String, ForeignKey("words.id"), nullable=False)
-    version_id = Column(String, ForeignKey("field_versions.id"), nullable=False)
 
-    content = Column(String, nullable=False)
-    accepted = Column(Boolean, nullable=False)
-    
+    # field version is the parant of suggestions
     field_version = relationship("FieldVersion", back_populates="suggestions")
+    # User is the parent of this
+    creator = relationship("User", back_populates="suggestions")

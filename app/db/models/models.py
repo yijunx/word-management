@@ -1,14 +1,26 @@
-from enum import unique
 from sqlalchemy import Column, String, DateTime
-from sqlalchemy.sql.expression import null
 from sqlalchemy.sql.schema import ForeignKey, UniqueConstraint
 from sqlalchemy.sql.sqltypes import BigInteger, Boolean, Integer
 from sqlalchemy.orm import relationship
 from .base import Base
 
 
+class CasbinRule(Base):
+    __tablename__ = "casbin_rule"
+    __table_args__ = (UniqueConstraint("v0", "v1", name="_v0_v1_uc"),)
+    id = Column(BigInteger, autoincrement=True, primary_key=True, index=True)
+    ptype = Column(String, nullable=False)
+    v0 = Column(String, nullable=True)
+    v1 = Column(String, nullable=True)
+    v2 = Column(String, nullable=True)
+    v3 = Column(String, nullable=True)
+    v4 = Column(String, nullable=True)
+    v5 = Column(String, nullable=True)
+
+
 class User(Base):
     """User is created via the token in the request cookie"""
+
     __tablename__ = "users"
 
     id = Column(String, primary_key=True, index=True)
@@ -17,7 +29,6 @@ class User(Base):
 
     # we can add more things here like if the user's email has been verified
     # however the authen will reject him if email not verified..
-
 
 
 class Word(Base):
@@ -33,6 +44,9 @@ class Word(Base):
     modified_at = Column(DateTime, nullable=False)
     created_by = Column(String, ForeignKey("users.id"), nullable=False)
 
+    # well here i dont want to add any relation.. it could be very messy
+    # need to use aio something to fetch the right field versions
+
 
 class FieldVersion(Base):
     __tablename__ = "field_versions"
@@ -40,7 +54,7 @@ class FieldVersion(Base):
     id = Column(String, primary_key=True, index=True)
     word_id = Column(String, ForeignKey("words.id"), nullable=False)
     # explanation|usage|pronounciation|tag
-    field = Column(String, nullable=False)  
+    field = Column(String, nullable=False)
     content = Column(String, nullable=False)
 
     created_at = Column(DateTime, nullable=False)
@@ -65,11 +79,5 @@ class Suggestion(Base):
 
     content = Column(String, nullable=False)
     accepted = Column(Boolean, nullable=False)
-
-    field_version = relationship("FieldVersion", back_populates="suggestions")
-
     
-
-
-
-
+    field_version = relationship("FieldVersion", back_populates="suggestions")

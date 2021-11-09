@@ -47,4 +47,3 @@ app.json_encoder = CustomJSONEncoder
 app.register_blueprint(coreBp)
 app.register_blueprint(userBp)
 # app.register_blueprint(internalBp)
-

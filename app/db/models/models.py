@@ -40,7 +40,7 @@ class Word(Base):
     __tablename__ = "words"
 
     id = Column(String, primary_key=True, index=True)
-    title = Column(String, nullable=False, unique=True)
+    title = Column(String, nullable=False, unique=True)  # well this is wrong, it is umm with dialect..
     locked = Column(Boolean, nullable=False)
     merged_to = Column(String, nullable=True)
     dialect = Column(String, nullable=False)

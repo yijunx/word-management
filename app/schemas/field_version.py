@@ -5,6 +5,10 @@ from enum import Enum
 from app.schemas.pagination import ResponsePagination, QueryPagination
 
 
+class ContentPatch(BaseModel):
+    content: str
+
+
 class FieldEnum(str, Enum):
     explanation = "explanation"
     usage = "usage"

@@ -3,6 +3,7 @@ from sqlalchemy.sql.expression import and_, or_
 from app.schemas.pagination import ResponsePagination
 from app.db.models import models
 from sqlalchemy.orm import Session
+from app.schemas.user import User
 from app.schemas.field_version import FieldVersionCreate, FieldVersionQuery
 from uuid import uuid4
 from datetime import datetime, timezone
@@ -10,7 +11,7 @@ from app.repo.util import translate_query_pagination
 
 
 def create(
-    db: Session, item_create: FieldVersionCreate, actor: models.User
+    db: Session, item_create: FieldVersionCreate, actor: User
 ) -> models.FieldVersion:
 
     now = datetime.now(timezone.utc)

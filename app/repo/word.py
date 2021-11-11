@@ -3,6 +3,7 @@ from sqlalchemy.sql.expression import and_, or_
 from app.schemas.pagination import ResponsePagination
 from app.db.models import models
 from sqlalchemy.orm import Session
+from app.schemas.user import User
 from app.schemas.word import WordCreate, WordQueryByTitle
 from uuid import uuid4
 from sqlalchemy.exc import IntegrityError
@@ -11,7 +12,7 @@ from datetime import datetime, timezone
 from app.repo.util import translate_query_pagination
 
 
-def create(db: Session, item_create: WordCreate, actor: models.User) -> models.User:
+def create(db: Session, item_create: WordCreate, actor: User) -> models.Word:
 
     now = datetime.now(timezone.utc)
 

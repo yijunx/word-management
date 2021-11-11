@@ -41,6 +41,13 @@ def delete_all(db: Session) -> None:
     db.query(models.Word).delete()
 
 
+def delete(db: Session, item_id: str):
+    db_item = db.query(models.Word).filter(models.Word.id == item_id).first()
+    if not db_item:
+        raise WordDoesNotExist(word_id=item_id)
+    db.delete(db_item)
+
+
 def get(db: Session, item_id: str) -> models.Word:
     db_item = db.query(models.Word).filter(models.Word.id == item_id).first()
     if not db_item:

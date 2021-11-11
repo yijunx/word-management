@@ -9,9 +9,7 @@ from datetime import datetime, timezone
 from app.repo.util import translate_query_pagination
 
 
-def create(
-    db: Session, actor: User
-) -> models.User:
+def create(db: Session, actor: User) -> models.User:
     """
     here the user already create himself
     with data from cookie
@@ -35,18 +33,14 @@ def delete_all(db: Session) -> None:
 
 
 def delete(db: Session, item_id: str) -> None:
-    db_item = (
-        db.query(models.User).filter(models.User.id == item_id).first()
-    )
+    db_item = db.query(models.User).filter(models.User.id == item_id).first()
     if not db_item:
         raise Exception("user does not exist")
     db.delete(db_item)
 
 
 def get(db: Session, item_id: str) -> models.User:
-    db_item = (
-        db.query(models.User).filter(models.User.id == item_id).first()
-    )
+    db_item = db.query(models.User).filter(models.User.id == item_id).first()
     if not db_item:
         raise Exception("user does not exist")
     return db_item

@@ -25,6 +25,7 @@ def create(db: Session, item_create: WordCreate, actor: User) -> models.Word:
         created_at=now,
         modified_at=now,
         created_by=actor.id,
+        active=True,
     )
     db.add(db_item)
     try:
@@ -56,7 +57,7 @@ def get(db: Session, item_id: str) -> models.Word:
 
 
 def get_all(
-    db: Session, query_pagination: WordQueryByTitle
+    db: Session, query_pagination: WordQueryByTitle, active_only: bool = True
 ) -> Tuple[List[models.Word], ResponsePagination]:
 
     query = db.query(models.Word)
@@ -66,6 +67,9 @@ def get_all(
 
     if query_pagination.dialect:
         query = query.filter(models.Word.dialect == query_pagination.dialect)
+
+    if active_only:
+        query = query.filter(models.Word.active == True)
 
     total = query.count()
     limit, offset, paging = translate_query_pagination(

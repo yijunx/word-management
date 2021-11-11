@@ -9,7 +9,7 @@ from app.util.response_util import create_response
 from app.config.app_config import conf
 
 
-def authorize_user_domain(action: ResourceActionsEnum = None):
+def authorize_word_domain(action: ResourceActionsEnum = None):
     def decorator(func):
         def wrapper_enforcer(*args, **kwargs):
             actor = get_user_info_from_request(request=request)

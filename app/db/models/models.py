@@ -45,6 +45,7 @@ class Word(Base):
     locked = Column(Boolean, nullable=False)
     merged_to = Column(String, nullable=True)
     dialect = Column(String, nullable=False)
+    active = Column(Boolean, nullable=False)
 
     created_at = Column(DateTime, nullable=False)
     modified_at = Column(DateTime, nullable=False)
@@ -70,6 +71,7 @@ class FieldVersion(Base):
     modified_at = Column(DateTime, nullable=False)
     created_by = Column(String, ForeignKey("users.id"), nullable=False)
 
+    # only updated via internal routes
     up_votes = Column(Integer, nullable=False)
     down_votes = Column(Integer, nullable=False)
     active = Column(Boolean, nullable=False)
@@ -101,6 +103,8 @@ class Suggestion(Base):
     created_at = Column(DateTime, nullable=False)
     modified_at = Column(DateTime, nullable=False)
     created_by = Column(String, ForeignKey("users.id"), nullable=False)
+
+    active = Column(Boolean, nullable=False)
 
     # field version is the parant of suggestions
     field_version = relationship("FieldVersion", back_populates="suggestions")

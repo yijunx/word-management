@@ -21,11 +21,11 @@ def create(
         word_id=item_create.word_id,
         version_id=item_create.version_id,
         content=item_create.content,  # can be updated by the owner or admin
-        
         accepted=False,
         created_at=now,
         modified_at=now,
         created_by=actor.id,
+        active=True,
     )
     db.add(db_item)
     db.flush()
@@ -55,7 +55,7 @@ def get(db: Session, item_id: str) -> models.Suggestion:
 
 
 def get_all(
-    db: Session, query_pagination: SuggestionQuery
+    db: Session, query_pagination: SuggestionQuery, active_only: bool = True
 ) -> Tuple[List[models.Suggestion], ResponsePagination]:
 
     query = db.query(models.Suggestion)
@@ -63,7 +63,12 @@ def get_all(
     query = query.filter(models.Suggestion.word_id == query_pagination.word_id)
 
     if query_pagination.version_id:
-        query = query.filter(models.Suggestion.version_id == query_pagination.version_id)
+        query = query.filter(
+            models.Suggestion.version_id == query_pagination.version_id
+        )
+
+    if active_only:
+        query = query.filter(models.Suggestion.active == True)
 
     total = query.count()
     limit, offset, paging = translate_query_pagination(

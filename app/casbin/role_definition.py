@@ -8,6 +8,12 @@ class PolicyTypeEnum(str, Enum):
     g = "g"
 
 
+class ResourceDomainEnum(str, Enum):
+    words = "words/"
+    field_versions = "field_versions/"
+    suggestions = "suggestions/"
+
+
 class ResourceRightsEnum(str, Enum):
     """one user of one resource can only be one of the below"""
 

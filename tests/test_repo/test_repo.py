@@ -11,6 +11,7 @@ from app.schemas.word import WordCreate
 
 WORD_ID = ""
 VERSION_IDS = []
+SUGGESTION_ID = ""
 
 
 def test_create_user(db: Session, user_one: User):
@@ -67,6 +68,35 @@ def test_create_versions(db: Session, user_one: User, word_create: WordCreate):
     assert db_exp.content == word_create.explanation
     assert db_tag.created_by == user_one.id
     assert db_pro.active == True
+    assert db_pro.creator.name == user_one.name
+
+
+def test_create_suggestion(db: Session, user_one: User):
+    db_sug = SuggestionRepo.create(
+        db=db,
+        item_create=SuggestionCreate(
+            word_id=WORD_ID,
+            version_id=VERSION_IDS[0],
+            content="suggestion is here..."
+        ),
+        actor=user_one
+    )
+    global SUGGESTION_ID
+    SUGGESTION_ID = db_sug.id
+    assert db_sug.creator.email == user_one.email
+    assert db_sug.accepted == False
+
+
+def test_checking_user(db: Session, user_one: User):
+    db_user = UserRepo.get(db=db, item_id=user_one.id)
+    assert WORD_ID in [x.id for x in db_user.words]
+    assert VERSION_IDS[0] in [x.id for x in db_user.field_versions]
+    assert SUGGESTION_ID in [x.id for x in db_user.suggestions]
+
+
+# starting to delete....
+def test_delete_suggestion(db: Session):
+    SuggestionRepo.delete(db=db, item_id=SUGGESTION_ID)
 
 
 def test_delete_versions(db: Session):

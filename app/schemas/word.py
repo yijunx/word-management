@@ -12,6 +12,7 @@ class DialectEnum(str, Enum):
 
 class WordCreate(BaseModel):
 
+    title: str
     explanation: str  # well you cannot submit without give explanation..
     pronunciation: Optional[str]
     usage: Optional[str]
@@ -21,7 +22,7 @@ class WordCreate(BaseModel):
 
 class Word(BaseModel):
     id: str  # this user id is from token in cookie
-    title: str
+
     locked: bool
     merged_to: str
     dialect: str
@@ -47,7 +48,7 @@ class WordWithFieldsWithPaging(BaseModel):
 
 
 class WordQueryByTitle(QueryPagination):
-    title: str
+    title: Optional[str]
     dialect: Optional[DialectEnum]
 
 

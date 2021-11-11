@@ -41,3 +41,8 @@ class FieldVersion(FieldVersionCreate):
 class FieldVersionWithPaging(BaseModel):
     data: List[FieldVersion]
     paging: ResponsePagination
+
+
+class FieldVersionQuery(QueryPagination):
+    word_id: str
+    field: Optional[FieldEnum]

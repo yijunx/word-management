@@ -24,3 +24,8 @@ class Suggestion(SuggestionCreate):
 class SuggestionWithPaging(BaseModel):
     data: List[Suggestion]
     paging: ResponsePagination
+
+
+class SuggestionQuery(QueryPagination):
+    word_id: str
+    version_id: Optional[str]

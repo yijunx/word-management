@@ -6,7 +6,7 @@ class WordDoesNotExist(Exception):
 
 
 class WordAlreadyExist(Exception):
-    def __init__(self, word_title: str) -> None:
+    def __init__(self, word_title: str, dialect: str) -> None:
         self.http_code = 409
-        self.message = f"Word {word_title} already exists"
+        self.message = f"Word {word_title} already exists in dialect {dialect}"
         super().__init__(self.message)

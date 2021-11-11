@@ -72,6 +72,12 @@ class FieldVersion(Base):
 
     up_votes = Column(Integer, nullable=False)
     down_votes = Column(Integer, nullable=False)
+    active = Column(Boolean, nullable=False)
+    # if the field version has no activity in 60 days
+    # or the admin thinks it is no longer ..
+    # then can set active to false
+    # need some db scanner app to do the active thing..
+    # it can be auto activated if there is vote or suggestion
 
     # field version is the parant of suggestions
     suggestions = relationship("Suggestion", back_populates="field_version")

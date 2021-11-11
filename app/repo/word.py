@@ -1,32 +1,69 @@
-from typing import List, Tuple, Union
+from typing import List, Tuple
 from sqlalchemy.sql.expression import and_, or_
-from app.schemas.pagination import QueryPagination, ResponsePagination
+from app.schemas.pagination import ResponsePagination
 from app.db.models import models
 from sqlalchemy.orm import Session
-from app.schemas.user import UserCreate, UserPatch
+from app.schemas.word import WordCreate, WordQueryByTitle
 from uuid import uuid4
 from sqlalchemy.exc import IntegrityError
+from app.exceptions.word import WordAlreadyExist, WordDoesNotExist
+from datetime import datetime, timezone
+from app.repo.util import translate_query_pagination
 
 
-def create(db: Session, item_create: UserCreate) -> models.User:
-    db_item = models.User(
-        id=str(uuid4()),  # [let db create the id for us]
-        name=item_create.name,
-        created_at=item_create.created_at,
-        email=item_create.email,
-        login_method=item_create.login_method,
-        salt=item_create.salt,
-        hashed_password=item_create.hashed_password,
-        email_verified=item_create.email_verified,
+def create(db: Session, item_create: WordCreate, actor: models.User) -> models.User:
+
+    now = datetime.now(timezone.utc)
+
+    db_item = models.Word(
+        id=str(uuid4()),
+        title=item_create.title,
+        locked=False,
+        # merged_to not there when creation, let it be NULL in db
+        dialect=item_create.dialect,
+        created_at=now,
+        modified_at=now,
+        created_by=actor.id,
     )
     db.add(db_item)
     try:
         db.flush()
     except IntegrityError:
         db.rollback()
-        raise UserEmailAlreadyExist(email=item_create.email)
+        raise WordAlreadyExist(
+            word_title=item_create.title, dialect=item_create.dialect
+        )
     return db_item
 
 
 def delete_all(db: Session) -> None:
-    db.query(models.User).delete()
+    db.query(models.Word).delete()
+
+
+def get(db: Session, item_id: str) -> models.Word:
+    db_item = db.query(models.Word).filter(models.Word.id == item_id).first()
+    if not db_item:
+        raise WordDoesNotExist(word_id=item_id)
+    return db_item
+
+
+def get_all(
+    db: Session, query_pagination: WordQueryByTitle
+) -> Tuple[List[models.Word], ResponsePagination]:
+
+    query = db.query(models.Word)
+
+    if query_pagination.title:
+        query = query.filter(models.Word.title.ilike(f"%{query_pagination.title}%"))
+
+    if query_pagination.dialect:
+        query = query.filter(models.Word.dialect == query_pagination.dialect)
+
+    total = query.count()
+    limit, offset, paging = translate_query_pagination(
+        query_pagination=query_pagination, total=total
+    )
+
+    db_items = query.order_by(models.Word.title).limit(limit).offset(offset).all()
+    paging.page_size = len(db_items)
+    return db_items, paging

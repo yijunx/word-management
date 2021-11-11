@@ -42,7 +42,6 @@ class ResourceActionsEnum(str, Enum):
     deactivate_suggestion = "deactivate_suggestion"
 
 
-
 resource_right_action_mapping: dict = {
     ResourceRightsEnum.own_word: {
         ResourceActionsEnum.update_word_title,
@@ -53,7 +52,7 @@ resource_right_action_mapping: dict = {
     },
     ResourceRightsEnum.own_suggestion: {
         ResourceActionsEnum.update_suggestion_content,
-        ResourceActionsEnum.deactivate_suggestion
+        ResourceActionsEnum.deactivate_suggestion,
     },
     ResourceRightsEnum.admin: {
         ResourceActionsEnum.update_word_title,
@@ -61,6 +60,6 @@ resource_right_action_mapping: dict = {
         ResourceActionsEnum.merge_word,
         ResourceActionsEnum.deactivate_field_version,
         ResourceActionsEnum.deactivate_suggestion,
-        ResourceActionsEnum.deactivate_word
+        ResourceActionsEnum.deactivate_word,
     },
 }

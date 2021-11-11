@@ -31,15 +31,15 @@ class Word(BaseModel):
     modified_at: datetime
     created_by: str
 
-    class Config:
-        orm_mode = True
-
 
 class WordWithFields(Word):
     explanation: Optional[str]
     pronunciation: Optional[str]
     usage: Optional[str]
     tags: Optional[str]
+
+    class Config:
+        orm_mode = True
 
 
 class WordWithFieldsWithPaging(BaseModel):

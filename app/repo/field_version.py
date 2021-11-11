@@ -29,7 +29,6 @@ def create(
         active=True,  # only managed automatically
     )
     db.add(db_item)
-    db.flush()
     return db_item
 
 

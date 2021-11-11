@@ -28,7 +28,6 @@ def create(
         active=True,
     )
     db.add(db_item)
-    db.flush()
     return db_item
 
 

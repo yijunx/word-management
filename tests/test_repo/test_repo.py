@@ -1,7 +1,7 @@
 import pytest
 from sqlalchemy.orm.session import Session
 from app.db.models.models import User
-import app.repo.word as wordRepo
+import app.repo.word as WordRepo
 import app.repo.field_version as FieldVersionRepo
 import app.repo.suggestion as SuggestionRepo
 import app.repo.user as UserRepo
@@ -20,7 +20,7 @@ def test_create_user(db: Session, user_one: User):
 
 
 def test_create_word(db: Session, user_one: User, word_create: WordCreate):
-    db_item = wordRepo.create(db=db, item_create=word_create, actor=user_one)
+    db_item = WordRepo.create(db=db, item_create=word_create, actor=user_one)
     global WORD_ID
     WORD_ID = db_item.id
     assert db_item.creator.id == user_one.id
@@ -105,7 +105,7 @@ def test_delete_versions(db: Session):
 
 
 def test_delete_word(db: Session):
-    wordRepo.delete(db=db, item_id=WORD_ID)
+    WordRepo.delete(db=db, item_id=WORD_ID)
 
 
 def test_delete_user(db: Session, user_one: User):

@@ -56,7 +56,7 @@ def get(db: Session, item_id: str) -> models.Word:
     return db_item
 
 
-def get_all(
+def get_all_from_title(
     db: Session, query_pagination: WordQueryByTitle, active_only: bool = True
 ) -> Tuple[List[models.Word], ResponsePagination]:
 

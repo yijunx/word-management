@@ -35,7 +35,9 @@ def create_casbin_enforcer():
         admin users will have * in obj in the admin role policy, so admin user can
         do things on any resource
         """
-        if object_from_policy == "*" or object_from_request.startswith(object_from_policy):
+        if object_from_policy == "*" or object_from_request.startswith(
+            object_from_policy
+        ):
             # * means usper admin
             # startwith means specific dialect admin
             return True

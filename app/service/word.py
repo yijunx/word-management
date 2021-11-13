@@ -7,7 +7,7 @@ import app.repo.suggestion as SuggestionRepo
 import app.repo.user as UserRepo
 from app.schemas.field_version import FieldEnum, FieldVersionCreate, FieldVersion
 from app.schemas.suggestion import SuggestionCreate, Suggestion
-from app.schemas.word import WordCreate, WordQueryByTag, WordQueryByTitle, WordWithFields, Word, WordWithFieldsWithPaging
+from app.schemas.word import WordCreate, WordQuery, WordWithFields, WordWithFieldsWithPaging
 from app.schemas.user import User
 from app.casbin.enforcer import casbin_enforcer
 from app.casbin.resource_id_converter import get_resource_id_from_item_id
@@ -94,16 +94,12 @@ def _update_fields_of_an_empty_word(db: Session, word_with_fields: WordWithField
                 setattr(word_with_fields, fv.field, fv.content)
 
 
-def list_word_by_tag(query: WordQueryByTag):
-    # well we should combine...
-    pass
-
-def list_word_by_title(query: WordQueryByTitle) -> WordWithFieldsWithPaging:
+def list_word_by_title(query: WordQuery) -> WordWithFieldsWithPaging:
     """used when user search for 62"""
 
     with get_db() as db:
         # retrieve the word
-        db_words, paging = WordRepo.get_all_from_title(
+        db_words, paging = WordRepo.get_all(
             db=db, query_pagination=query
         )
 

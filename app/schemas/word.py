@@ -47,11 +47,8 @@ class WordWithFieldsWithPaging(BaseModel):
     paging: ResponsePagination
 
 
-class WordQueryByTitle(QueryPagination):
+class WordQuery(QueryPagination):
+    tag: str
     title: Optional[str]
     dialect: Optional[DialectEnum]
 
-
-class WordQueryByTag(QueryPagination):
-    tag: str
-    dialect: Optional[DialectEnum]

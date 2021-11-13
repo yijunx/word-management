@@ -4,7 +4,7 @@ from app.schemas.pagination import ResponsePagination
 from app.db.models import models
 from sqlalchemy.orm import Session
 from app.schemas.user import User
-from app.schemas.word import WordCreate, WordQueryByTitle
+from app.schemas.word import WordCreate, WordQuery
 from uuid import uuid4
 from sqlalchemy.exc import IntegrityError
 from app.exceptions.word import WordAlreadyExist, WordDoesNotExist
@@ -56,14 +56,19 @@ def get(db: Session, item_id: str) -> models.Word:
     return db_item
 
 
-def get_all_from_title(
-    db: Session, query_pagination: WordQueryByTitle, active_only: bool = True
+def get_all(
+    db: Session, query_pagination: WordQuery, active_only: bool = True
 ) -> Tuple[List[models.Word], ResponsePagination]:
 
     query = db.query(models.Word)
 
-    if query_pagination.title:
+    # search based on tag or title
+    if query_pagination.tag:
+        query = query.filter(models.Word.tag.ilike(f"%#{query_pagination.tag}%"))
+    elif query_pagination.title:
         query = query.filter(models.Word.title.ilike(f"%{query_pagination.title}%"))
+    else:
+        pass
 
     if query_pagination.dialect:
         query = query.filter(models.Word.dialect == query_pagination.dialect)

@@ -10,7 +10,7 @@ from app.util.response_util import create_response
 from app.exceptions.word import WordAlreadyExist, WordDoesNotExist
 
 
-bp = Blueprint(name="words_bp", import_name=__name__, url_prefix="/api/words")
+bp = Blueprint(name="word_private_bp", import_name=__name__, url_prefix="/private_api/words")
 logger = get_logger(__name__)
 
 
@@ -34,24 +34,15 @@ def create_word(body: WordCreate):
     )
 
 
-
-@bp.route("", methods=["GET"])
-@validate()
-def get_words(query: WordQuery):
-    """used to show entries or searches, user login is not required.
-    thus in this endpoint, we do not know the user, and does not require casbin
-    """
-
-
-
-    pass
-
-
 @bp.route("", methods=["GET"])
 @authorize(require_casbin=False)
 @validate()
-def get_my_words():
+def get_my_words(query: WordQuery):
     """
     well this is get my words, so need to know who this is, thus user login,
     verification, auth headers is needed, but, no need to pass casbin"""
     actor: User = request.environ["actor"]
+    words_with_paging = WordService.list_word(
+        query=query, creator=actor
+    )
+    return create_response(response=words_with_paging)

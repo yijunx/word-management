@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from app.casbin.role_definition import ResourceDomainEnum, ResourceRightsEnum
 from app.db.models import models
 from app.db.database import get_db
@@ -5,10 +6,13 @@ import app.repo.word as WordRepo
 import app.repo.field_version as FieldVersionRepo
 import app.repo.suggestion as SuggestionRepo
 import app.repo.user as UserRepo
+import app.repo.casbin as CasbinRepo
 from app.schemas.field_version import FieldEnum, FieldVersionCreate, FieldVersion
 from app.schemas.suggestion import SuggestionCreate, Suggestion
 from app.schemas.word import (
+    Word,
     WordCreate,
+    WordPatch,
     WordQuery,
     WordWithFields,
     WordWithFieldsWithPaging,
@@ -34,7 +38,10 @@ def _create_field_version_and_add_policy(
     casbin_enforcer.add_policy(
         actor.id,
         get_resource_id_from_item_id(
-            item_id=db_field_version.id, domain=ResourceDomainEnum.field_versions
+            # for field version resource name, 
+            # word id is added for ease of deleting
+            item_id=db_field_version.id + ":" + word_id,
+            domain=ResourceDomainEnum.field_versions,
         ),
         ResourceRightsEnum.own_field_version,
     )
@@ -106,7 +113,9 @@ def list_word(query: WordQuery, creator: User = None) -> WordWithFieldsWithPagin
 
     with get_db() as db:
         # retrieve the word
-        db_words, paging = WordRepo.get_all(db=db, query_pagination=query, creator=creator)
+        db_words, paging = WordRepo.get_all(
+            db=db, query_pagination=query, creator=creator
+        )
 
         words_with_fields = [WordWithFields.from_orm(db_word) for db_word in db_words]
 
@@ -116,15 +125,22 @@ def list_word(query: WordQuery, creator: User = None) -> WordWithFieldsWithPagin
     return WordWithFieldsWithPaging(data=words_with_fields, paging=paging)
 
 
+def update_word_title(body: WordPatch, actor: User, item_id: str) -> Word:
+    """used when the word owner update word title"""
+
+    with get_db() as db:
+        db_word = WordRepo.get(db=db, item_id=item_id)
+        if body.title:
+            db_word.title = body.title
+            db_word.modified_at = datetime.now(timezone.utc)
+        word = Word.from_orm(db_word)
+    return word
+
+
 def delete_word(item_id) -> None:
-    # for test purpose, there will not be
-
-    # delete suggestions
-    # remove the casbin policies
-
-    # delete fv
-    # remove the casbin policies
-
-    # delete word
-    # remove the casbin policies
-    pass
+    """for test purpose"""
+    with get_db() as db:
+        SuggestionRepo.delete_all(db=db, word_id=item_id)
+        FieldVersionRepo.delete_all(db=db, word_id=item_id)
+        WordRepo.delete(db=db, item_id=item_id)
+        CasbinRepo.delete_policies_by_word_id(db=db, word_id=item_id)

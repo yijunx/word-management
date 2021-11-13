@@ -31,8 +31,13 @@ def create(
     return db_item
 
 
-def delete_all(db: Session) -> None:
-    db.query(models.Suggestion).delete()
+def delete_all(db: Session, word_id: str = None) -> None:
+    if word_id:
+        db.query(models.Suggestion).filter(
+            models.Suggestion.word_id == word_id
+        ).delete()
+    else:
+        db.query(models.Suggestion).delete()
 
 
 def delete(db: Session, item_id: str) -> None:

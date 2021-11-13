@@ -57,7 +57,10 @@ def get(db: Session, item_id: str) -> models.Word:
 
 
 def get_all(
-    db: Session, query_pagination: WordQuery, active_only: bool = True, creator: User = None
+    db: Session,
+    query_pagination: WordQuery,
+    active_only: bool = True,
+    creator: User = None,
 ) -> Tuple[List[models.Word], ResponsePagination]:
 
     query = db.query(models.Word)

@@ -20,6 +20,11 @@ class WordCreate(BaseModel):
     dialect: DialectEnum
 
 
+class WordPatch(BaseModel):
+    # well only title can be updated...
+    title: str
+
+
 class Word(BaseModel):
     id: str  # this user id is from token in cookie
 

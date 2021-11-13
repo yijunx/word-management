@@ -17,6 +17,8 @@ def test_create_word_from_user_one(
     WORD_ID = word_with_fields.id
     assert r.status_code == 200
     assert word_with_fields.explanation == word_create.explanation
+    assert word_with_fields.tags == word_create.tags
+    assert word_with_fields.usage == word_create.usage
 
 
 def test_create_same_word_from_user_two(
@@ -33,6 +35,9 @@ def test_list_word_from_public(
     print(r.get_json())
     words_wth_paging = WordWithFieldsWithPaging(**r.get_json()["response"])
     assert word_create.explanation in [x.explanation for x in words_wth_paging.data]
+    assert word_create.usage in [x.usage for x in words_wth_paging.data]
+    assert word_create.pronunciation in [x.pronunciation for x in words_wth_paging.data]
+    assert word_create.tags in [x.tags for x in words_wth_paging.data]
     assert r.status_code == 200
 
 

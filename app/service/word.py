@@ -24,13 +24,13 @@ from sqlalchemy.orm import Session
 
 
 def _create_field_version_and_add_policy(
-    db: Session, word_id: str, content: str, actor: User
+    db: Session, word_id: str, content: str, actor: User, field: FieldEnum
 ) -> models.FieldVersion:
     db_field_version = FieldVersionRepo.create(
         db=db,
         item_create=FieldVersionCreate(
             word_id=word_id,
-            field=FieldEnum.explanation,
+            field=field,
             content=content,
         ),
         actor=actor,
@@ -63,17 +63,17 @@ def create_word(item_create: WordCreate, actor: User) -> WordWithFields:
 
         if item_create.explanation:
             db_field_version = _create_field_version_and_add_policy(
-                db=db, word_id=db_word.id, content=item_create.explanation, actor=actor
+                db=db, word_id=db_word.id, content=item_create.explanation, actor=actor, field=FieldEnum.explanation
             )
             word_with_fields.explanation = db_field_version.content
         if item_create.usage:
             db_field_version = _create_field_version_and_add_policy(
-                db=db, word_id=db_word.id, content=item_create.usage, actor=actor
+                db=db, word_id=db_word.id, content=item_create.usage, actor=actor, field=FieldEnum.usage
             )
             word_with_fields.usage = db_field_version.content
         if item_create.tags:
             db_field_version = _create_field_version_and_add_policy(
-                db=db, word_id=db_word.id, content=item_create.tags, actor=actor
+                db=db, word_id=db_word.id, content=item_create.tags, actor=actor, field=FieldEnum.tags
             )
             word_with_fields.tags = db_field_version.content
         if item_create.pronunciation:
@@ -82,6 +82,7 @@ def create_word(item_create: WordCreate, actor: User) -> WordWithFields:
                 word_id=db_word.id,
                 content=item_create.pronunciation,
                 actor=actor,
+                field=FieldEnum.pronunciation
             )
             word_with_fields.pronunciation = db_field_version.content
 

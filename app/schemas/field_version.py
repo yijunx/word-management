@@ -17,6 +17,8 @@ class FieldEnum(str, Enum):
 
 
 class FieldVersionCreate(BaseModel):
+    """there is word_id in the payload
+    so there is no need to have word_id in the path"""
 
     word_id: str
     field: FieldEnum

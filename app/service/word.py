@@ -5,10 +5,8 @@ from app.db.database import get_db
 import app.repo.word as WordRepo
 import app.repo.field_version as FieldVersionRepo
 import app.repo.suggestion as SuggestionRepo
-import app.repo.user as UserRepo
 import app.repo.casbin as CasbinRepo
-from app.schemas.field_version import FieldEnum, FieldVersionCreate, FieldVersion
-from app.schemas.suggestion import SuggestionCreate, Suggestion
+from app.schemas.field_version import FieldEnum, FieldVersionCreate
 from app.schemas.word import (
     Word,
     WordCreate,
@@ -63,17 +61,29 @@ def create_word(item_create: WordCreate, actor: User) -> WordWithFields:
 
         if item_create.explanation:
             db_field_version = _create_field_version_and_add_policy(
-                db=db, word_id=db_word.id, content=item_create.explanation, actor=actor, field=FieldEnum.explanation
+                db=db,
+                word_id=db_word.id,
+                content=item_create.explanation,
+                actor=actor,
+                field=FieldEnum.explanation,
             )
             word_with_fields.explanation = db_field_version.content
         if item_create.usage:
             db_field_version = _create_field_version_and_add_policy(
-                db=db, word_id=db_word.id, content=item_create.usage, actor=actor, field=FieldEnum.usage
+                db=db,
+                word_id=db_word.id,
+                content=item_create.usage,
+                actor=actor,
+                field=FieldEnum.usage,
             )
             word_with_fields.usage = db_field_version.content
         if item_create.tags:
             db_field_version = _create_field_version_and_add_policy(
-                db=db, word_id=db_word.id, content=item_create.tags, actor=actor, field=FieldEnum.tags
+                db=db,
+                word_id=db_word.id,
+                content=item_create.tags,
+                actor=actor,
+                field=FieldEnum.tags,
             )
             word_with_fields.tags = db_field_version.content
         if item_create.pronunciation:
@@ -82,7 +92,7 @@ def create_word(item_create: WordCreate, actor: User) -> WordWithFields:
                 word_id=db_word.id,
                 content=item_create.pronunciation,
                 actor=actor,
-                field=FieldEnum.pronunciation
+                field=FieldEnum.pronunciation,
             )
             word_with_fields.pronunciation = db_field_version.content
 

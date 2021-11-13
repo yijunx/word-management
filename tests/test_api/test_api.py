@@ -41,21 +41,24 @@ def test_list_word_from_public(
     assert r.status_code == 200
 
 
-def test_patch_word_from_user_two(
-    client_from_user_two: FlaskClient
-):
-    r = client_from_user_two.patch(f"/private_api/words/{WORD_ID}", json={
-        "title": "new_title"
-    })
+def test_patch_word_from_user_two(client_from_user_two: FlaskClient):
+    r = client_from_user_two.patch(
+        f"/private_api/words/{WORD_ID}", json={"title": "new_title"}
+    )
     assert r.status_code == 403
 
 
-def test_patch_word_from_user_one(
-    client_from_user_one: FlaskClient
-):
-    r = client_from_user_one.patch(f"/private_api/words/{WORD_ID}", json={
-        "title": "new_title"
-    })
+def test_list_my_word_from_user_two(client_from_user_two: FlaskClient):
+    r = client_from_user_two.get(f"/private_api/words")
+    assert r.status_code == 200
+    words_wth_paging = WordWithFieldsWithPaging(**r.get_json()["response"])
+    assert len(words_wth_paging.data) == 0
+
+
+def test_patch_word_from_user_one(client_from_user_one: FlaskClient):
+    r = client_from_user_one.patch(
+        f"/private_api/words/{WORD_ID}", json={"title": "new_title"}
+    )
     word = Word(**r.get_json()["response"])
     assert r.status_code == 200
     assert word.title == "new_title"

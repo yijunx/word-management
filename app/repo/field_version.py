@@ -67,11 +67,13 @@ def get_all_field_versions_of_a_word(
         and_(models.FieldVersion.word_id == word_id, models.FieldVersion.active == True)
     )
     db_items = query.all()
+
+    # need to apply the manual pagination here...maybe at service level..
     return db_items
 
 
 def get_all(
-    db: Session, query_pagination: FieldVersionQuery
+    db: Session, query_pagination: FieldVersionQuery, creator: User = None
 ) -> Tuple[List[models.FieldVersion], ResponsePagination]:
 
     query = db.query(models.FieldVersion)

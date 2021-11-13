@@ -42,9 +42,7 @@ def delete_policies_by_word_id(db: Session, word_id: str) -> None:
     query = db.query(models.CasbinRule).filter(
         models.CasbinRule.ptype == PolicyTypeEnum.p
     )
-    query = query.filter(
-        models.CasbinRule.v1.ilike(f"%{word_id}%")
-    )
+    query = query.filter(models.CasbinRule.v1.ilike(f"%{word_id}%"))
     db_items = query.all()
     for db_item in db_items:
         db.delete(db_item)

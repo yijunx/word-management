@@ -47,7 +47,7 @@ def get_my_words(query: WordQuery):
     return create_response(response=words_with_paging)
 
 
-@bp.route("/<str:item_id>", methods=["PATCH"])
+@bp.route("/<item_id>", methods=["PATCH"])
 @authorize(
     action=ResourceActionsEnum.update_word_title, domain=ResourceDomainEnum.words
 )

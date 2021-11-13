@@ -24,5 +24,4 @@ def get_words(query: WordQuery):
 
     """
     words_with_paging = WordService.list_word(query=query)
-
     return create_response(response=words_with_paging)

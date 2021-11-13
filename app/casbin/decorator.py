@@ -26,9 +26,7 @@ def authorize(
             actor = get_user_info_from_request(request=request)
 
             with get_db() as db:
-                UserRepo.get_or_create(
-                    db=db, actor=actor
-                )
+                UserRepo.get_or_create(db=db, actor=actor)
 
             request.environ["actor"] = actor
             if require_casbin:

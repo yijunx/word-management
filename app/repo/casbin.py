@@ -40,9 +40,11 @@ def delete_policies_by_resource_id(db: Session, resource_id: str) -> None:
 def delete_policies_by_word_id(db: Session, word_id: str) -> None:
     """used when deleting resource"""
     query = db.query(models.CasbinRule).filter(
-        and_(
-            models.CasbinRule.ptype == PolicyTypeEnum.p,
-            models.CasbinRule.v1.ilike(f"%{word_id}%"),
-        )
+        models.CasbinRule.ptype == PolicyTypeEnum.p
     )
-    query.delete()
+    query = query.filter(
+        models.CasbinRule.v1.ilike(f"%{word_id}%")
+    )
+    db_items = query.all()
+    for db_item in db_items:
+        db.delete(db_item)

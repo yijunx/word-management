@@ -27,14 +27,18 @@ class WordPatch(BaseModel):
 
 class Word(BaseModel):
     id: str  # this user id is from token in cookie
+    title: str
 
     locked: bool
-    merged_to: str
+    merged_to: Optional[str]
     dialect: str
 
     created_at: datetime
     modified_at: datetime
     created_by: str
+
+    class Config:
+        orm_mode = True
 
 
 class WordWithFields(Word):
@@ -53,6 +57,6 @@ class WordWithFieldsWithPaging(BaseModel):
 
 
 class WordQuery(QueryPagination):
-    tag: str
+    tag: Optional[str]
     title: Optional[str]
     dialect: Optional[DialectEnum]

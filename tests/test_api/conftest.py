@@ -25,4 +25,3 @@ def client_from_user_two(user_two: User) -> FlaskClient:
 def client_without_user() -> FlaskClient:
     with app.test_client() as c:
         yield c
-

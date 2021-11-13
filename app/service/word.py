@@ -38,7 +38,7 @@ def _create_field_version_and_add_policy(
     casbin_enforcer.add_policy(
         actor.id,
         get_resource_id_from_item_id(
-            # for field version resource name, 
+            # for field version resource name,
             # word id is added for ease of deleting
             item_id=db_field_version.id + ":" + word_id,
             domain=ResourceDomainEnum.field_versions,

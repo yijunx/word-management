@@ -51,4 +51,3 @@ def get_or_create(db: Session, actor: User) -> models.User:
     if not db_item:
         db_item = create(db=db, actor=actor)
     return db_item
-

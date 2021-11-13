@@ -68,7 +68,15 @@ def test_create_versions(db: Session, user_one: User, word_create: WordCreate):
     assert db_exp.content == word_create.explanation
     assert db_tag.created_by == user_one.id
     assert db_pro.active == True
-    assert db_pro.creator.name == user_one.name
+    # below assert does not work because 
+    # db.flush() is removed in create()
+    # assert db_pro.creator.name == user_one.name
+
+
+def test_get_field_version(db: Session, user_one: User):
+    db_fv = FieldVersionRepo.get(db=db, item_id=VERSION_IDS[0])
+    assert db_fv.created_by == user_one.id
+    assert db_fv.creator.name == user_one.name
 
 
 def test_create_suggestion(db: Session, user_one: User):
@@ -83,7 +91,9 @@ def test_create_suggestion(db: Session, user_one: User):
     )
     global SUGGESTION_ID
     SUGGESTION_ID = db_sug.id
-    assert db_sug.creator.email == user_one.email
+    # below assert does not work because 
+    # db.flush() is removed in create()
+    # assert db_sug.creator.email == user_one.email
     assert db_sug.accepted == False
 
 

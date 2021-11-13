@@ -44,3 +44,11 @@ def get(db: Session, item_id: str) -> models.User:
     if not db_item:
         raise Exception("user does not exist")
     return db_item
+
+
+def get_or_create(db: Session, actor: User) -> models.User:
+    db_item = db.query(models.User).filter(models.User.email == actor.email).first()
+    if not db_item:
+        db_item = create(db=db, actor=actor)
+    return db_item
+

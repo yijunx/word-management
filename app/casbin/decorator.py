@@ -4,6 +4,8 @@ from app.casbin.resource_id_converter import get_resource_id_from_item_id
 from flask import request
 from app.util.process_request import get_user_info_from_request
 from app.util.response_util import create_response
+import app.repo.user as UserRepo
+from app.db.database import get_db
 
 
 def authorize(
@@ -22,6 +24,12 @@ def authorize(
     def decorator(func):
         def wrapper_enforcer(*args, **kwargs):
             actor = get_user_info_from_request(request=request)
+
+            with get_db() as db:
+                UserRepo.get_or_create(
+                    db=db, actor=actor
+                )
+
             request.environ["actor"] = actor
             if require_casbin:
                 item_id: str = kwargs["item_id"]

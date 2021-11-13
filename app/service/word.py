@@ -7,7 +7,12 @@ import app.repo.suggestion as SuggestionRepo
 import app.repo.user as UserRepo
 from app.schemas.field_version import FieldEnum, FieldVersionCreate, FieldVersion
 from app.schemas.suggestion import SuggestionCreate, Suggestion
-from app.schemas.word import WordCreate, WordQuery, WordWithFields, WordWithFieldsWithPaging
+from app.schemas.word import (
+    WordCreate,
+    WordQuery,
+    WordWithFields,
+    WordWithFieldsWithPaging,
+)
 from app.schemas.user import User
 from app.casbin.enforcer import casbin_enforcer
 from app.casbin.resource_id_converter import get_resource_id_from_item_id
@@ -77,7 +82,9 @@ def create_word(item_create: WordCreate, actor: User) -> WordWithFields:
     return word_with_fields
 
 
-def _update_fields_of_an_empty_word(db: Session, word_with_fields: WordWithFields) -> None:
+def _update_fields_of_an_empty_word(
+    db: Session, word_with_fields: WordWithFields
+) -> None:
     db_field_versions = FieldVersionRepo.get_all_field_versions_of_a_word(
         db=db, word_id=word_with_fields.id
     )
@@ -94,30 +101,23 @@ def _update_fields_of_an_empty_word(db: Session, word_with_fields: WordWithField
                 setattr(word_with_fields, fv.field, fv.content)
 
 
-def list_word_by_title(query: WordQuery) -> WordWithFieldsWithPaging:
+def list_word(query: WordQuery, creator: User = None) -> WordWithFieldsWithPaging:
     """used when user search for 62"""
 
     with get_db() as db:
         # retrieve the word
-        db_words, paging = WordRepo.get_all(
-            db=db, query_pagination=query
-        )
+        db_words, paging = WordRepo.get_all(db=db, query_pagination=query, creator=creator)
 
         words_with_fields = [WordWithFields.from_orm(db_word) for db_word in db_words]
 
         for w in words_with_fields:
-            _update_fields_of_an_empty_word(
-                db=db, word_with_fields=w
-            )
+            _update_fields_of_an_empty_word(db=db, word_with_fields=w)
 
-    return WordWithFieldsWithPaging(
-        data=words_with_fields,
-        paging=paging
-    )
+    return WordWithFieldsWithPaging(data=words_with_fields, paging=paging)
 
 
 def delete_word(item_id) -> None:
-    # for test purpose, there will not be 
+    # for test purpose, there will not be
 
     # delete suggestions
     # remove the casbin policies
@@ -128,7 +128,3 @@ def delete_word(item_id) -> None:
     # delete word
     # remove the casbin policies
     pass
-
-
-
-        

@@ -57,10 +57,13 @@ def get(db: Session, item_id: str) -> models.Word:
 
 
 def get_all(
-    db: Session, query_pagination: WordQuery, active_only: bool = True
+    db: Session, query_pagination: WordQuery, active_only: bool = True, creator: User = None
 ) -> Tuple[List[models.Word], ResponsePagination]:
 
     query = db.query(models.Word)
+
+    if creator:
+        query = query.filter(models.Word.created_by == creator.id)
 
     # search based on tag or title
     if query_pagination.tag:

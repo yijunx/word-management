@@ -51,4 +51,3 @@ class WordQuery(QueryPagination):
     tag: str
     title: Optional[str]
     dialect: Optional[DialectEnum]
-

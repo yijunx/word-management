@@ -87,15 +87,29 @@ def test_add_field_version_from_user_two(client_from_user_two: FlaskClient):
     assert r.status_code == 200
 
 
-def test_list_field_version_from_public(client_without_user: FlaskClient):
-    r = client_without_user.get(
-        f"/public_api/field_versions", query_string={"word_id": WORD_ID}
+def test_list_my_versions_from_user_two(client_from_user_two: FlaskClient):
+    r = client_from_user_two.get(
+        f"/private_api/field_versions", query_string={"word_id": WORD_ID}
     )
     field_versions_with_paging = FieldVersionWithPaging(**r.get_json()["response"])
     assert r.status_code == 200
     assert NEW_FIELD_VERSION_CONTENT in [
         x.content for x in field_versions_with_paging.data
     ]
+    assert len(field_versions_with_paging.data) == 1
+
+
+def test_list_field_version_from_public(client_without_user: FlaskClient):
+    r = client_without_user.get(
+        f"/public_api/field_versions",
+        query_string={"word_id": WORD_ID, "field": "explanation"},
+    )
+    field_versions_with_paging = FieldVersionWithPaging(**r.get_json()["response"])
+    assert r.status_code == 200
+    assert NEW_FIELD_VERSION_CONTENT in [
+        x.content for x in field_versions_with_paging.data
+    ]
+    assert len(field_versions_with_paging.data) == 2
 
 
 def test_patch_field_version(client_from_user_two: FlaskClient):

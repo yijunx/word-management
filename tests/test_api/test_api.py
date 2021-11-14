@@ -5,14 +5,16 @@ from app.schemas.field_version import (
     FieldVersionCreate,
     FieldVersionWithPaging,
 )
-import app.service.word as WordService
-import app.service.user as UserService
 from app.schemas.word import WordCreate, WordWithFields, WordWithFieldsWithPaging, Word
 from app.schemas.user import User
+from app.schemas.suggestion import Suggestion, SuggestionWithPaging
+import app.service.word as WordService
+import app.service.user as UserService
 
 
 WORD_ID = ""
 FIELD_VERSION_ID = ""
+SUGGESTION_ID = ""
 NEW_FIELD_VERSION_CONTENT = "new content"
 
 
@@ -126,6 +128,49 @@ def test_patch_field_version_from_user_one(client_from_user_one: FlaskClient):
         json={"content": "new content"},
     )
     assert r.status_code == 403
+
+
+def test_add_suggestion_from_user_one(client_from_user_one: FlaskClient):
+    r = client_from_user_one.post(
+        f"/private_api/suggestions",
+        json={
+            "content": "suggestion",
+            "word_id": WORD_ID,
+            "version_id": FIELD_VERSION_ID,
+        },
+    )
+    sugguestion = Suggestion(**r.get_json()["response"])
+    global SUGGESTION_ID
+    SUGGESTION_ID = sugguestion.id
+    assert r.status_code == 200
+    assert sugguestion.content == "suggestion"
+
+
+def test_patch_suggestion_from_user_two(client_from_user_two: FlaskClient):
+    r = client_from_user_two.patch(
+        f"/private_api/suggestions/{SUGGESTION_ID}",
+        json={"content": "new content"},
+    )
+    assert r.status_code == 403
+
+
+def test_approve_suggestion_from_user_two(client_from_user_two: FlaskClient):
+    r = client_from_user_two.post(
+        f"/private_api/field_versions/{FIELD_VERSION_ID}/accept_suggestion",
+        json={"suggestion_id": SUGGESTION_ID},
+    )
+    assert r.status_code == 200
+
+
+def test_list_suggestion_from_public(client_without_user: FlaskClient):
+    r = client_without_user.get(
+        f"/public_api/suggestions",
+        query_string={"word_id": WORD_ID, "version_id": FIELD_VERSION_ID},
+    )
+    suggestion_with_paging = SuggestionWithPaging(**r.get_json()["response"])
+    assert r.status_code == 200
+    assert len(suggestion_with_paging.data) == 1
+    assert suggestion_with_paging.data[0].accepted == True
 
 
 def test_delete_word():

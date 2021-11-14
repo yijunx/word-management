@@ -2,11 +2,16 @@ from datetime import datetime, timezone
 from app.casbin.role_definition import ResourceDomainEnum, ResourceRightsEnum
 from app.db.database import get_db
 import app.repo.suggestion as SuggestionRepo
-from app.schemas.suggestion import SuggestionCreate, Suggestion, SuggestionPatch, SuggestionWithPaging, SuggestionQuery
+from app.schemas.suggestion import (
+    SuggestionCreate,
+    Suggestion,
+    SuggestionPatch,
+    SuggestionWithPaging,
+    SuggestionQuery,
+)
 from app.schemas.user import User
 from app.casbin.enforcer import casbin_enforcer
 from app.casbin.resource_id_converter import get_resource_id_from_item_id
-
 
 
 def create_suggestion(item_create: SuggestionCreate, actor: User) -> Suggestion:
@@ -32,10 +37,7 @@ def list_suggestions(
         db_items, paging = SuggestionRepo.get_all(
             db=db, query_pagination=query, creator=creator
         )
-        items = [
-            Suggestion.from_orm(item)
-            for item in db_items
-        ]
+        items = [Suggestion.from_orm(item) for item in db_items]
     return SuggestionWithPaging(data=items, paging=paging)
 
 

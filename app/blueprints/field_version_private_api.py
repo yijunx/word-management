@@ -1,6 +1,7 @@
 from flask import Blueprint, request
 from flask_pydantic import validate
 from app.db.models.models import FieldVersion
+from app.schemas.suggestion import SuggestionAccept
 from app.util.app_logging import get_logger
 from app.casbin.decorator import authorize
 from app.casbin.role_definition import ResourceDomainEnum, ResourceActionsEnum
@@ -68,3 +69,21 @@ def update_my_field_version(body: FieldVersionPatch, item_id: str):
         logger.debug(e, exc_info=True)
         return create_response(success=False, message=str(e), status_code=500)
     return create_response(response=field_version)
+
+
+@bp.route("/<item_id>/accept_suggestion", methods=["POST"])
+@authorize(
+    action=ResourceActionsEnum.accept_or_reject_suggestion,
+    domain=ResourceDomainEnum.field_versions,
+)
+@validate()
+def accept_suggestion_to_my_field_version(body: SuggestionAccept, item_id: str):
+    actor: User = request.environ["actor"]
+    try:
+        FieldVersionService.accept_suggestion_to_my_version(
+            item_id=item_id, suggestion_id=body.suggestion_id, actor=actor
+        )
+    except Exception as e:
+        logger.debug(e, exc_info=True)
+        return create_response(success=False, message=str(e), status_code=500)
+    return create_response(message="suggestion approved..")

@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 from app.casbin.role_definition import ResourceDomainEnum, ResourceRightsEnum
 from app.db.database import get_db
 import app.repo.field_version as FieldVersionRepo
+import app.repo.suggestion as SuggestionRepo
 from app.schemas.field_version import (
     FieldVersionCreate,
     FieldVersion,
@@ -54,3 +55,14 @@ def update_field_version_content(
         item = FieldVersion.from_orm(db_item)
 
     return item
+
+
+def accept_suggestion_to_my_version(
+    item_id: str, suggestion_id: str, actor: User
+) -> None:
+    with get_db() as db:
+        db_suggestion = SuggestionRepo.get(db=db, item_id=suggestion_id)
+        if db_suggestion.field_version.id == item_id:
+            db_suggestion.accepted = True
+        else:
+            raise Exception("suggestion and item id not match")

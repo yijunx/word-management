@@ -42,9 +42,7 @@ def create_suggestion(body: SuggestionCreate):
 def list_my_suggestions(query: SuggestionQuery):
     actor: User = request.environ["actor"]
     try:
-        r = SuggestionService.list_suggestions(
-            query=query, creator=actor
-        )
+        r = SuggestionService.list_suggestions(query=query, creator=actor)
     except Exception as e:
         logger.debug(e, exc_info=True)
         return create_response(success=False, message=str(e), status_code=500)

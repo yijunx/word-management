@@ -16,6 +16,10 @@ class SuggestionPatch(BaseModel):
     content: str
 
 
+class SuggestionAccept(BaseModel):
+    suggestion_id: str
+
+
 class Suggestion(SuggestionCreate):
     id: str
 
@@ -23,6 +27,9 @@ class Suggestion(SuggestionCreate):
     modified_at: datetime
     created_by: str
     accepted: bool
+
+    class Config:
+        orm_mode = True
 
 
 class SuggestionWithPaging(BaseModel):

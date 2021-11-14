@@ -73,7 +73,10 @@ def get_all_field_versions_of_a_word(
 
 
 def get_all(
-    db: Session, query_pagination: FieldVersionQuery, active_only: bool = True, creator: User = None
+    db: Session,
+    query_pagination: FieldVersionQuery,
+    active_only: bool = True,
+    creator: User = None,
 ) -> Tuple[List[models.FieldVersion], ResponsePagination]:
 
     query = db.query(models.FieldVersion)
@@ -83,7 +86,7 @@ def get_all(
 
     if creator:
         query = query.filter(models.FieldVersion.created_by == creator.id)
-    
+
     if active_only:
         query = query.filter(models.FieldVersion.active == True)
 

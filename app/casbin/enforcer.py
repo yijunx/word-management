@@ -6,6 +6,7 @@ from app.casbin.role_definition import (
     resource_right_action_mapping,
 )
 import os
+from app.casbin.seed import seed_or_get_admin_user
 
 
 def create_casbin_enforcer():
@@ -53,8 +54,8 @@ def create_casbin_enforcer():
     casbin_enforcer.add_policy(
         "admin-role-id", conf.RESOURCE_NAME_WORD, ResourceRightsEnum.admin
     )
-    # admin_user_id = seed_or_get_admin_user()
-    # casbin_enforcer.add_grouping_policy(admin_user_id, "admin-role-id")
+    admin_user_id = seed_or_get_admin_user()
+    casbin_enforcer.add_grouping_policy(admin_user_id, "admin-role-id")
     # here, at first, there is no admin, admin only added via user management...
     # it is done via internal api call
     # but we can create specific service admin in the seed of the user management service

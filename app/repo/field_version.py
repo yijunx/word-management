@@ -78,7 +78,11 @@ def get_all(
 
     query = db.query(models.FieldVersion)
 
-    query = query.filter(models.FieldVersion.word_id == query_pagination.word_id)
+    if query_pagination.word_id:
+        query = query.filter(models.FieldVersion.word_id == query_pagination.word_id)
+
+    if creator:
+        query = query.filter(models.FieldVersion.created_by == creator.id)
 
     if query_pagination.field:
         query = query.filter(models.FieldVersion.field == query_pagination.field)

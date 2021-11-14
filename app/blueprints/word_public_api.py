@@ -1,13 +1,9 @@
-from flask import Blueprint, request
+from flask import Blueprint
 from flask_pydantic import validate
 from app.util.app_logging import get_logger
-from app.casbin.decorator import authorize
-from app.casbin.role_definition import ResourceDomainEnum, ResourceActionsEnum
-from app.schemas.user import User
-from app.schemas.word import WordCreate, WordQuery
+from app.schemas.word import WordQuery
 import app.service.word as WordService
 from app.util.response_util import create_response
-from app.exceptions.word import WordAlreadyExist, WordDoesNotExist
 
 
 bp = Blueprint(

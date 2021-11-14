@@ -10,6 +10,7 @@ from app.schemas.field_version import (
     FieldEnum,
     FieldVersionCreate,
     FieldVersion,
+    FieldVersionPatch,
     FieldVersionQuery,
     FieldVersionWithPaging,
 )
@@ -43,11 +44,18 @@ def list_field_version(
         db_field_versions, paging = FieldVersionRepo.get_all(
             db=db, query_pagination=query, creator=creator
         )
-        field_versions = [FieldVersion.from_orm(db_field_version) for db_field_version in db_field_versions]
+        field_versions = [
+            FieldVersion.from_orm(db_field_version)
+            for db_field_version in db_field_versions
+        ]
     return FieldVersionWithPaging(data=field_versions, paging=paging)
 
 
 def update_field_version_content(
-
+    item_patch: FieldVersionPatch, item_id: str, actor: User
 ):
-    pass
+    with get_db() as db:
+        db_item = FieldVersionRepo.get(db=db, item_id=item_id)
+        db_item.modified_at(datetime.now(timezone.utc))
+        db_item.content = item_patch.content
+    return db_item

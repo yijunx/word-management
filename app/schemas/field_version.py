@@ -25,6 +25,10 @@ class FieldVersionCreate(BaseModel):
     content: str
 
 
+class FieldVersionPatch(BaseModel):
+    content: str
+
+
 class FieldVersion(FieldVersionCreate):
 
     id: str
@@ -46,5 +50,7 @@ class FieldVersionWithPaging(BaseModel):
 
 
 class FieldVersionQuery(QueryPagination):
-    word_id: str
+    """word id optional"""
+
+    word_id: Optional[str]
     field: Optional[FieldEnum]

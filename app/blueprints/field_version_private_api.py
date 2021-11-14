@@ -5,7 +5,11 @@ from app.util.app_logging import get_logger
 from app.casbin.decorator import authorize
 from app.casbin.role_definition import ResourceDomainEnum, ResourceActionsEnum
 from app.schemas.user import User
-from app.schemas.field_version import FieldVersionCreate
+from app.schemas.field_version import (
+    FieldVersionCreate,
+    FieldVersionPatch,
+    FieldVersionQuery,
+)
 import app.service.field_version as FieldVersionService
 from app.util.response_util import create_response
 
@@ -23,12 +27,44 @@ logger = get_logger(__name__)
 @bp.route("", methods=["POST"])
 @authorize(require_casbin=False)
 @validate()
-def create_word(body: FieldVersionCreate):
+def create_field_version(body: FieldVersionCreate):
     actor: User = request.environ["actor"]
     try:
-        word = FieldVersion.create_field_version(item_create=body, actor=actor)
+        word = FieldVersionService.create_field_version(item_create=body, actor=actor)
     except Exception as e:
         logger.debug(e, exc_info=True)
         return create_response(success=False, message=str(e), status_code=500)
-
     return create_response(response=word)
+
+
+@bp.route("", methods=["GET"])
+@authorize(require_casbin=False)
+@validate()
+def list_my_field_verions(query: FieldVersionQuery):
+    actor: User = request.environ["actor"]
+    try:
+        field_versions_with_paging = FieldVersionService.list_field_version(
+            query=query, creator=actor
+        )
+    except Exception as e:
+        logger.debug(e, exc_info=True)
+        return create_response(success=False, message=str(e), status_code=500)
+    return create_response(response=field_versions_with_paging)
+
+
+@bp.route("/<item_id>", methods=["POST"])
+@authorize(
+    action=ResourceActionsEnum.update_field_version_content,
+    domain=ResourceDomainEnum.field_versions,
+)
+@validate()
+def update_my_field_version(body: FieldVersionPatch, item_id: str):
+    actor: User = request.environ["actor"]
+    try:
+        field_version = FieldVersionService.update_field_version_content(
+            item_patch=body, item_id=item_id, actor=actor
+        )
+    except Exception as e:
+        logger.debug(e, exc_info=True)
+        return create_response(success=False, message=str(e), status_code=500)
+    return create_response(response=field_version)

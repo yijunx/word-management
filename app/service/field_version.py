@@ -1,24 +1,17 @@
 from datetime import datetime, timezone
 from app.casbin.role_definition import ResourceDomainEnum, ResourceRightsEnum
 from app.db.database import get_db
-import app.repo.word as WordRepo
 import app.repo.field_version as FieldVersionRepo
-import app.repo.suggestion as SuggestionRepo
-import app.repo.user as UserRepo
-import app.repo.casbin as CasbinRepo
 from app.schemas.field_version import (
-    FieldEnum,
     FieldVersionCreate,
     FieldVersion,
     FieldVersionPatch,
     FieldVersionQuery,
     FieldVersionWithPaging,
 )
-from app.schemas.suggestion import SuggestionCreate, Suggestion
 from app.schemas.user import User
 from app.casbin.enforcer import casbin_enforcer
 from app.casbin.resource_id_converter import get_resource_id_from_item_id
-from sqlalchemy.orm import Session
 
 
 def create_field_version(item_create: FieldVersionCreate, actor: User) -> FieldVersion:

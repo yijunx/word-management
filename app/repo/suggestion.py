@@ -59,12 +59,13 @@ def get(db: Session, item_id: str) -> models.Suggestion:
 
 
 def get_all(
-    db: Session, query_pagination: SuggestionQuery, active_only: bool = True
+    db: Session, query_pagination: SuggestionQuery, creator: User = None, active_only: bool = True
 ) -> Tuple[List[models.Suggestion], ResponsePagination]:
 
-    query = db.query(models.Suggestion)
+    query = db.query(models.Suggestion).filter(models.Suggestion.word_id == query_pagination.word_id)
 
-    query = query.filter(models.Suggestion.word_id == query_pagination.word_id)
+    if creator:
+        query = query.filter(models.Suggestion.created_by == creator.id)
 
     if query_pagination.version_id:
         query = query.filter(

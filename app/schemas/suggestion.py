@@ -12,6 +12,10 @@ class SuggestionCreate(BaseModel):
     content: str
 
 
+class SuggestionPatch(BaseModel):
+    content: str
+
+
 class Suggestion(SuggestionCreate):
     id: str
 

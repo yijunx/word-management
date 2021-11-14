@@ -2,7 +2,9 @@ from typing import List, Optional
 from pydantic import BaseModel
 from datetime import datetime
 from enum import Enum
+from app.db.models.models import User
 from app.schemas.pagination import ResponsePagination, QueryPagination
+from app.schemas.user import UserInContribution
 
 
 class DialectEnum(str, Enum):
@@ -60,3 +62,7 @@ class WordQuery(QueryPagination):
     tag: Optional[str]
     title: Optional[str]
     dialect: Optional[DialectEnum]
+
+
+class WordContribution(BaseModel):
+    data: List[UserInContribution]

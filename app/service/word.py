@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from typing import List
 from app.casbin.role_definition import ResourceDomainEnum, ResourceRightsEnum
 from app.db.models import models
 from app.db.database import get_db
@@ -9,13 +10,14 @@ import app.repo.casbin as CasbinRepo
 from app.schemas.field_version import FieldEnum, FieldVersionCreate
 from app.schemas.word import (
     Word,
+    WordContribution,
     WordCreate,
     WordPatch,
     WordQuery,
     WordWithFields,
     WordWithFieldsWithPaging,
 )
-from app.schemas.user import User
+from app.schemas.user import User, UserInContribution
 from app.casbin.enforcer import casbin_enforcer
 from app.casbin.resource_id_converter import get_resource_id_from_item_id
 from sqlalchemy.orm import Session
@@ -103,6 +105,7 @@ def create_word(item_create: WordCreate, actor: User) -> WordWithFields:
 def _update_fields_of_an_empty_word(
     db: Session, word_with_fields: WordWithFields
 ) -> None:
+    """this function updates word_with_fields inplace"""
     db_field_versions = FieldVersionRepo.get_all_field_versions_of_a_word(
         db=db, word_id=word_with_fields.id
     )
@@ -134,6 +137,40 @@ def list_word(query: WordQuery, creator: User = None) -> WordWithFieldsWithPagin
             _update_fields_of_an_empty_word(db=db, word_with_fields=w)
 
     return WordWithFieldsWithPaging(data=words_with_fields, paging=paging)
+
+
+def get_word(item_id: str) -> WordWithFields:
+    """when viewer goes into the word"""
+    with get_db() as db:
+        db_word = WordRepo.get(db=db, item_id=item_id)
+        word_with_fields = WordWithFields.from_orm(db_word)
+        _update_fields_of_an_empty_word(db=db, word_with_fields=word_with_fields)
+
+    return word_with_fields
+
+
+def get_contributor_of_word(item_id: str) -> WordContribution:
+    with get_db() as db:
+        db_word = WordRepo.get(db=db, item_id=item_id)
+        contributors_ids = set()
+        contributors = []
+        # add creator
+        contributors.append(db_word.creator)
+        contributors_ids.add(db_word.created_by)
+        print(f"[WORD] adding {db_word.creator.name}")
+
+        # add field versions creators
+        for fv in db_word.field_versions:
+            if fv.created_by not in contributors_ids:
+                contributors.append(fv.creator)
+                contributors_ids.add(fv.created_by)
+            for sug in fv.suggestions:
+                if sug.created_by not in contributors_ids:
+                    contributors.append(sug.creator)
+                    contributors.append(db_word.creator)
+
+        contributors = [UserInContribution.from_orm(x) for x in contributors]
+    return WordContribution(data=contributors)
 
 
 def update_word_title(body: WordPatch, actor: User, item_id: str) -> Word:

@@ -5,7 +5,13 @@ from app.schemas.field_version import (
     FieldVersionCreate,
     FieldVersionWithPaging,
 )
-from app.schemas.word import WordCreate, WordWithFields, WordWithFieldsWithPaging, Word
+from app.schemas.word import (
+    WordContribution,
+    WordCreate,
+    WordWithFields,
+    WordWithFieldsWithPaging,
+    Word,
+)
 from app.schemas.user import User
 from app.schemas.suggestion import Suggestion, SuggestionWithPaging
 import app.service.word as WordService
@@ -171,6 +177,24 @@ def test_list_suggestion_from_public(client_without_user: FlaskClient):
     assert r.status_code == 200
     assert len(suggestion_with_paging.data) == 1
     assert suggestion_with_paging.data[0].accepted == True
+
+
+def test_get_a_word_from_public(
+    client_without_user: FlaskClient, word_create: WordCreate
+):
+    r = client_without_user.get(f"/public_api/words/{WORD_ID}")
+    word = WordWithFields(**r.get_json()["response"])
+    assert r.status_code == 200
+    assert word.tags == word_create.tags
+
+
+def test_list_word_contributors(
+    client_without_user: FlaskClient, word_create: WordCreate
+):
+    r = client_without_user.get(f"/public_api/words/{WORD_ID}/contributors")
+    word_contribution = WordContribution(**r.get_json()["response"])
+    assert r.status_code == 200
+    assert len(word_contribution.data) == 2
 
 
 def test_delete_word():

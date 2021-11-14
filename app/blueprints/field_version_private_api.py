@@ -52,7 +52,7 @@ def list_my_field_verions(query: FieldVersionQuery):
     return create_response(response=field_versions_with_paging)
 
 
-@bp.route("/<item_id>", methods=["POST"])
+@bp.route("/<item_id>", methods=["PATCH"])
 @authorize(
     action=ResourceActionsEnum.update_field_version_content,
     domain=ResourceDomainEnum.field_versions,

@@ -31,7 +31,7 @@ def create_field_version(item_create: FieldVersionCreate, actor: User) -> FieldV
             get_resource_id_from_item_id(
                 item_id=db_field_version.id, domain=ResourceDomainEnum.field_versions
             ),
-            ResourceRightsEnum.own_word,
+            ResourceRightsEnum.own_field_version,
         )
         field_version = FieldVersion.from_orm(db_field_version)
     return field_version
@@ -53,9 +53,11 @@ def list_field_version(
 
 def update_field_version_content(
     item_patch: FieldVersionPatch, item_id: str, actor: User
-):
+) -> FieldVersion:
     with get_db() as db:
         db_item = FieldVersionRepo.get(db=db, item_id=item_id)
-        db_item.modified_at(datetime.now(timezone.utc))
+        db_item.modified_at = datetime.now(timezone.utc)
         db_item.content = item_patch.content
-    return db_item
+        item = FieldVersion.from_orm(db_item)
+
+    return item

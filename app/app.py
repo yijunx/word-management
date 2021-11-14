@@ -9,6 +9,8 @@ from datetime import datetime
 # blueprints
 from app.blueprints.word_private_api import bp as WordPublicBp
 from app.blueprints.word_public_api import bp as WordPrivateBp
+from app.blueprints.field_version_private_api import bp as FvPublicBp
+from app.blueprints.field_version_public_api import bp as FvPrivateBp
 
 # from app.blueprints.user import bp as userBp
 # from app.blueprints.internal import bp as internalBp
@@ -46,4 +48,6 @@ app.json_encoder = CustomJSONEncoder
 
 app.register_blueprint(WordPrivateBp)
 app.register_blueprint(WordPublicBp)
+app.register_blueprint(FvPrivateBp)
+app.register_blueprint(FvPublicBp)
 # app.register_blueprint(internalBp)

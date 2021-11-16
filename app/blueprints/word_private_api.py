@@ -4,7 +4,7 @@ from app.util.app_logging import get_logger
 from app.casbin.decorator import authorize
 from app.casbin.role_definition import ResourceDomainEnum, ResourceActionsEnum
 from app.schemas.user import User
-from app.schemas.word import WordCreate, WordPatch, WordQuery
+from app.schemas.word import WordCreate, WordMerge, WordPatch, WordQuery
 import app.service.word as WordService
 from app.util.response_util import create_response
 from app.exceptions.word import WordAlreadyExist, WordDoesNotExist
@@ -64,3 +64,66 @@ def patch_my_word(item_id: str, body: WordPatch):
         logger.debug(e, exc_info=True)
         return create_response(success=False, message=str(e), status_code=500)
     return create_response(response=word)
+
+
+@bp.route("/<item_id>/deactivate", methods=["POST"])
+@authorize(
+    action=ResourceActionsEnum.deactivate_word, domain=ResourceDomainEnum.words
+)
+def activate_or_deactivate(item_id: str):
+    """used for flipping the active flag, only admin user can do this"""
+    actor: User = request.environ["actor"]
+    try:
+        pass
+    # word = WordService.update_word_title(body=body, actor=actor, item_id=item_id)
+    except WordDoesNotExist as e:
+        return create_response(
+            success=False, message=e.message, status_code=e.http_code
+        )
+    except Exception as e:
+        logger.debug(e, exc_info=True)
+        return create_response(success=False, message=str(e), status_code=500)
+    return create_response(message="xxx")
+
+
+@bp.route("/<item_id>/merge_into_another", methods=["POST"])
+@authorize(
+    action=ResourceActionsEnum.merge_word, domain=ResourceDomainEnum.words
+)
+@validate()
+def merge_into_another(body: WordMerge, item_id: str):
+    """used for merge 2 words, using the title of the merged to ones,
+    and change the word_id in the its field versions"""
+    actor: User = request.environ["actor"]
+    try:
+        pass
+    # word = WordService.update_word_title(body=body, actor=actor, item_id=item_id)
+    except WordDoesNotExist as e:
+        return create_response(
+            success=False, message=e.message, status_code=e.http_code
+        )
+    except Exception as e:
+        logger.debug(e, exc_info=True)
+        return create_response(success=False, message=str(e), status_code=500)
+    return create_response(message="xxx")
+
+
+@bp.route("/<item_id>/lock", methods=["POST"])
+@authorize(
+    action=ResourceActionsEnum.merge_word, domain=ResourceDomainEnum.words
+)
+def lock_or_unlock_word(item_id: str):
+    """lock word for further edit, no more field version updates allowed
+    only admin can do this, purpose is to stop new content being generated on mature stuff"""
+    actor: User = request.environ["actor"]
+    try:
+        pass
+    # word = WordService.update_word_title(body=body, actor=actor, item_id=item_id)
+    except WordDoesNotExist as e:
+        return create_response(
+            success=False, message=e.message, status_code=e.http_code
+        )
+    except Exception as e:
+        logger.debug(e, exc_info=True)
+        return create_response(success=False, message=str(e), status_code=500)
+    return create_response(message="xxx")

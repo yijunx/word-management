@@ -27,6 +27,10 @@ class WordPatch(BaseModel):
     title: str
 
 
+class WordMerge(BaseModel):
+    word_id_to_merge_into: str
+
+
 class Word(BaseModel):
     id: str  # this user id is from token in cookie
     title: str

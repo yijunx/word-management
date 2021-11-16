@@ -65,3 +65,19 @@ def update_my_suggestion(body: SuggestionPatch, item_id: str):
         logger.debug(e, exc_info=True)
         return create_response(success=False, message=str(e), status_code=500)
     return create_response(response=r)
+
+
+@bp.route("/<item_id>/deactivate", methods=["POST"])
+@authorize(
+    action=ResourceActionsEnum.deactivate_suggestion, domain=ResourceDomainEnum.suggestions
+)
+def activate_or_deactivate(item_id: str):
+    """used for flipping the active flag, only admin user and suggestion owner can do this"""
+    actor: User = request.environ["actor"]
+    try:
+        pass
+    # word = WordService.update_word_title(body=body, actor=actor, item_id=item_id)
+    except Exception as e:
+        logger.debug(e, exc_info=True)
+        return create_response(success=False, message=str(e), status_code=500)
+    return create_response(message="xxx")

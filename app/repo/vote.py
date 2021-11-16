@@ -16,7 +16,7 @@ def create(
 
     now = datetime.now(timezone.utc)
 
-    db_item = models.Word(
+    db_item = models.Vote(
         id=str(uuid4()),
         vote_up=item_create.vote_up,
         version_id=version_id,
@@ -46,7 +46,7 @@ def get(db: Session, version_id: str, user_id: str) -> Union[None, models.Vote]:
     )
 
 
-def delete(db: Session, version_id, user_id: str) -> models.Vote:
+def delete(db: Session, version_id: str, user_id: str) -> models.Vote:
     db_item = get(db=db, version_id=version_id, user_id=user_id)
     if db_item is None:
         raise VoteDoesNotExist(user_id=user_id, version_id=version_id)

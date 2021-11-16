@@ -93,31 +93,31 @@ def accept_suggestion_to_my_field_version(body: SuggestionAccept, item_id: str):
 @bp.route("/<item_id>/vote", methods=["POST"])
 @authorize(require_casbin=False)
 @validate()
-def vote_a_suggestion(body: VoteCreate, item_id: str):
+def vote_a_field_version(body: VoteCreate, item_id: str):
     actor: User = request.environ["actor"]
     try:
         FieldVersionService.vote(
-            item_id=item_id, item_create=body, actor=actor
+            item_id=item_id, vote_create=body, actor=actor
         )
     except VoteAlreadyExist as e:
-         return create_response(success=False, message=str(e), status_code=500)
+         return create_response(success=False, message=str(e), status_code=e.http_code)
     except Exception as e:
         logger.debug(e, exc_info=True)
         return create_response(success=False, message=str(e), status_code=500)
-    return create_response(message="suggestion approved..")
+    return create_response(message="voted!")
 
 
 @bp.route("/<item_id>/unvote", methods=["POST"])
 @authorize(require_casbin=False)
-def vote_a_suggestion(item_id: str):
+def unvote_a_field_version(item_id: str):
     actor: User = request.environ["actor"]
     try:
         FieldVersionService.unvote(
             item_id=item_id, actor=actor
         )
     except VoteDoesNotExist as e:
-         return create_response(success=False, message=str(e), status_code=500)
+         return create_response(success=False, message=str(e), status_code=e.http_code)
     except Exception as e:
         logger.debug(e, exc_info=True)
         return create_response(success=False, message=str(e), status_code=500)
-    return create_response(message="suggestion approved..")
+    return create_response(message="unvoted!")

@@ -189,12 +189,48 @@ def test_get_a_word_from_public(
 
 
 def test_list_word_contributors(
-    client_without_user: FlaskClient, word_create: WordCreate
+    client_without_user: FlaskClient
 ):
     r = client_without_user.get(f"/public_api/words/{WORD_ID}/contributors")
     word_contribution = WordContribution(**r.get_json()["response"])
     assert r.status_code == 200
     assert len(word_contribution.data) == 2
+
+
+def test_vote_a_field_version(
+    client_from_user_two: FlaskClient,
+):
+    r = client_from_user_two.post(
+        f"/private_api/field_versions/{FIELD_VERSION_ID}/vote", json={
+            "vote_up": True
+        })
+    assert r.status_code == 200
+
+
+def test_vote_a_field_version_again(
+    client_from_user_two: FlaskClient,
+):
+    r = client_from_user_two.post(
+        f"/private_api/field_versions/{FIELD_VERSION_ID}/vote", json={
+            "vote_up": True
+        })
+    assert r.status_code == 409
+
+
+def test_unvote_a_field_version(
+    client_from_user_two: FlaskClient,
+):
+    r = client_from_user_two.post(
+        f"/private_api/field_versions/{FIELD_VERSION_ID}/unvote")
+    assert r.status_code == 200
+
+
+def test_unvote_a_not_voted_field_version(
+    client_from_user_one: FlaskClient,
+):
+    r = client_from_user_one.post(
+        f"/private_api/field_versions/{FIELD_VERSION_ID}/unvote")
+    assert r.status_code == 404
 
 
 def test_delete_word():

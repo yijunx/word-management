@@ -96,11 +96,9 @@ def accept_suggestion_to_my_field_version(body: SuggestionAccept, item_id: str):
 def vote_a_field_version(body: VoteCreate, item_id: str):
     actor: User = request.environ["actor"]
     try:
-        FieldVersionService.vote(
-            item_id=item_id, vote_create=body, actor=actor
-        )
+        FieldVersionService.vote(item_id=item_id, vote_create=body, actor=actor)
     except VoteAlreadyExist as e:
-         return create_response(success=False, message=str(e), status_code=e.http_code)
+        return create_response(success=False, message=str(e), status_code=e.http_code)
     except Exception as e:
         logger.debug(e, exc_info=True)
         return create_response(success=False, message=str(e), status_code=500)
@@ -112,11 +110,9 @@ def vote_a_field_version(body: VoteCreate, item_id: str):
 def unvote_a_field_version(item_id: str):
     actor: User = request.environ["actor"]
     try:
-        FieldVersionService.unvote(
-            item_id=item_id, actor=actor
-        )
+        FieldVersionService.unvote(item_id=item_id, actor=actor)
     except VoteDoesNotExist as e:
-         return create_response(success=False, message=str(e), status_code=e.http_code)
+        return create_response(success=False, message=str(e), status_code=e.http_code)
     except Exception as e:
         logger.debug(e, exc_info=True)
         return create_response(success=False, message=str(e), status_code=500)

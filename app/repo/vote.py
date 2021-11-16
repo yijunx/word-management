@@ -56,10 +56,6 @@ def delete(db: Session, version_id: str, user_id: str) -> models.Vote:
 
 def get_all(db: Session, version_ids: List[str], user_id: str) -> List[models.Vote]:
     query = db.query(models.Vote).filter_by(
-        and_(
-            models.Vote.version_id.in_(version_ids),
-            models.Vote.created_by == user_id
-        )
+        and_(models.Vote.version_id.in_(version_ids), models.Vote.created_by == user_id)
     )
     return query.all()
-

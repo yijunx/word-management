@@ -1,7 +1,8 @@
 from flask import Blueprint, request
 from flask_pydantic import validate
-from app.db.models.models import FieldVersion
+from app.exceptions.vote import VoteAlreadyExist, VoteDoesNotExist
 from app.schemas.suggestion import SuggestionAccept
+from app.schemas.vote import VoteCreate
 from app.util.app_logging import get_logger
 from app.casbin.decorator import authorize
 from app.casbin.role_definition import ResourceDomainEnum, ResourceActionsEnum
@@ -92,12 +93,30 @@ def accept_suggestion_to_my_field_version(body: SuggestionAccept, item_id: str):
 @bp.route("/<item_id>/vote", methods=["POST"])
 @authorize(require_casbin=False)
 @validate()
-def vote_a_suggestion(body: SuggestionAccept, item_id: str):
+def vote_a_suggestion(body: VoteCreate, item_id: str):
     actor: User = request.environ["actor"]
     try:
         FieldVersionService.vote(
-            item_id=item_id, suggestion_id=body.suggestion_id, actor=actor
+            item_id=item_id, item_create=body, actor=actor
         )
+    except VoteAlreadyExist as e:
+         return create_response(success=False, message=str(e), status_code=500)
+    except Exception as e:
+        logger.debug(e, exc_info=True)
+        return create_response(success=False, message=str(e), status_code=500)
+    return create_response(message="suggestion approved..")
+
+
+@bp.route("/<item_id>/unvote", methods=["POST"])
+@authorize(require_casbin=False)
+def vote_a_suggestion(item_id: str):
+    actor: User = request.environ["actor"]
+    try:
+        FieldVersionService.unvote(
+            item_id=item_id, actor=actor
+        )
+    except VoteDoesNotExist as e:
+         return create_response(success=False, message=str(e), status_code=500)
     except Exception as e:
         logger.debug(e, exc_info=True)
         return create_response(success=False, message=str(e), status_code=500)

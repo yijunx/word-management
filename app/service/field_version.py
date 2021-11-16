@@ -86,10 +86,10 @@ def accept_suggestion_to_my_version(
             raise Exception("suggestion and item id not match")
 
 
-def vote(item_id: str, item_create: VoteCreate, actor: User) -> None:
+def vote(item_id: str, vote_create: VoteCreate, actor: User) -> None:
     with get_db() as db:
         db_vote = VoteRepo.create(
-            db=db, item_create=item_create, actor=actor, version_id=item_id
+            db=db, item_create=vote_create, actor=actor, version_id=item_id
         )
         # if the db_vote does not raise exception (already voted)
         FieldVersionRepo.vote(
@@ -97,5 +97,11 @@ def vote(item_id: str, item_create: VoteCreate, actor: User) -> None:
         )
 
 
-def un_vote(item_id: str, item_create: VoteCreate, actor: User):
-    pass
+def unvote(item_id: str, actor: User):
+    with get_db() as db:
+        db_vote = VoteRepo.delete(db=db, version_id=item_id, user_id=actor.id)
+        FieldVersionRepo.unvote(
+            db=db, item_id=item_id, vote_up=db_vote.vote_up
+        )
+
+

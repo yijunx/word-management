@@ -1,5 +1,5 @@
 from typing import Union, List
-from app.exceptions.vote import VoteAlreadyExist
+from app.exceptions.vote import VoteAlreadyExist, VoteDoesNotExist
 from sqlalchemy.sql.expression import and_
 from app.db.models import models
 from sqlalchemy.orm import Session
@@ -44,6 +44,14 @@ def get(db: Session, version_id: str, user_id: str) -> Union[None, models.Vote]:
         )
         .first()
     )
+
+
+def delete(db: Session, version_id, user_id: str) -> models.Vote:
+    db_item = get(db=db, version_id=version_id, user_id=user_id)
+    if db_item is None:
+        raise VoteDoesNotExist(user_id=user_id, version_id=version_id)
+    db.delete(db_item)
+    return db_item
 
 
 def get_all(db: Session, version_ids: List[str], user_id: str) -> List[models.Vote]:

@@ -121,7 +121,8 @@ def unvote_a_field_version(item_id: str):
 
 @bp.route("/<item_id>/deactivate", methods=["POST"])
 @authorize(
-    action=ResourceActionsEnum.deactivate_field_version, domain=ResourceDomainEnum.field_versions
+    action=ResourceActionsEnum.deactivate_field_version,
+    domain=ResourceDomainEnum.field_versions,
 )
 def activate_or_deactivate(item_id: str):
     """used for flipping the active flag, only admin user can do this"""

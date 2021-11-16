@@ -69,7 +69,8 @@ def update_my_suggestion(body: SuggestionPatch, item_id: str):
 
 @bp.route("/<item_id>/deactivate", methods=["POST"])
 @authorize(
-    action=ResourceActionsEnum.deactivate_suggestion, domain=ResourceDomainEnum.suggestions
+    action=ResourceActionsEnum.deactivate_suggestion,
+    domain=ResourceDomainEnum.suggestions,
 )
 def activate_or_deactivate(item_id: str):
     """used for flipping the active flag, only admin user and suggestion owner can do this"""

@@ -67,9 +67,7 @@ def patch_my_word(item_id: str, body: WordPatch):
 
 
 @bp.route("/<item_id>/deactivate", methods=["POST"])
-@authorize(
-    action=ResourceActionsEnum.deactivate_word, domain=ResourceDomainEnum.words
-)
+@authorize(action=ResourceActionsEnum.deactivate_word, domain=ResourceDomainEnum.words)
 def activate_or_deactivate(item_id: str):
     """used for flipping the active flag, only admin user can do this"""
     actor: User = request.environ["actor"]
@@ -87,9 +85,7 @@ def activate_or_deactivate(item_id: str):
 
 
 @bp.route("/<item_id>/merge_into_another", methods=["POST"])
-@authorize(
-    action=ResourceActionsEnum.merge_word, domain=ResourceDomainEnum.words
-)
+@authorize(action=ResourceActionsEnum.merge_word, domain=ResourceDomainEnum.words)
 @validate()
 def merge_into_another(body: WordMerge, item_id: str):
     """used for merge 2 words, using the title of the merged to ones,
@@ -109,9 +105,7 @@ def merge_into_another(body: WordMerge, item_id: str):
 
 
 @bp.route("/<item_id>/lock", methods=["POST"])
-@authorize(
-    action=ResourceActionsEnum.merge_word, domain=ResourceDomainEnum.words
-)
+@authorize(action=ResourceActionsEnum.merge_word, domain=ResourceDomainEnum.words)
 def lock_or_unlock_word(item_id: str):
     """lock word for further edit, no more field version updates allowed
     only admin can do this, purpose is to stop new content being generated on mature stuff"""

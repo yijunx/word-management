@@ -12,3 +12,6 @@ class Vote(VoteCreate):
     version_id: str
     created_by: str
     created_at: datetime
+
+    class Config:
+        orm_mode = True

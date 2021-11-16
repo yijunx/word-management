@@ -118,7 +118,7 @@ class Vote(Base):
 
     # one can only vote for one version
     __table_args__ = (
-        UniqueConstraint("created_by", "version_id", name="_title_dialect_uc"),
+        UniqueConstraint("created_by", "version_id", name="_created_by_version_id_uc"),
     )
 
     id = Column(String, primary_key=True, index=True)

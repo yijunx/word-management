@@ -59,6 +59,19 @@ def get(db: Session, item_id: str) -> models.FieldVersion:
     return db_item
 
 
+def vote(db: Session, item_id: str, vote_up: bool) -> None:
+    """this function will check if the vote_up is None or not"""
+    if vote_up is not None:
+        if vote_up:
+            db.query(models.FieldVersion).filter(
+                models.FieldVersion.id == item_id
+            ).update({"up_votes": models.FieldVersion.up_votes + 1})
+        else:
+            db.query(models.FieldVersion).filter(
+                models.FieldVersion.id == item_id
+            ).update({"down_votes": models.FieldVersion.down_votes + 1})
+
+
 def get_all_field_versions_of_a_word(
     db: Session, word_id: str
 ) -> List[models.FieldVersion]:

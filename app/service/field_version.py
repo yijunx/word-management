@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 from app.casbin.role_definition import ResourceDomainEnum, ResourceRightsEnum
 from app.db.database import get_db
 import app.repo.field_version as FieldVersionRepo
+import app.repo.vote as VoteRepo
 import app.repo.suggestion as SuggestionRepo
 from app.schemas.field_version import (
     FieldVersionCreate,
@@ -10,9 +11,11 @@ from app.schemas.field_version import (
     FieldVersionQuery,
     FieldVersionWithPaging,
 )
+from app.schemas.vote import Vote
 from app.schemas.user import User
 from app.casbin.enforcer import casbin_enforcer
 from app.casbin.resource_id_converter import get_resource_id_from_item_id
+from app.schemas.vote import VoteCreate
 
 
 def create_field_version(item_create: FieldVersionCreate, actor: User) -> FieldVersion:
@@ -32,8 +35,13 @@ def create_field_version(item_create: FieldVersionCreate, actor: User) -> FieldV
 
 
 def list_field_version(
-    query: FieldVersionQuery, creator: User = None
+    query: FieldVersionQuery, creator: User = None, actor: User = None
 ) -> FieldVersionWithPaging:
+    """
+    if actor is there, we can show if the actor has voted for it or not
+    if creator is there, this funciton only shows field version created
+    by the creator
+    """
     with get_db() as db:
         db_field_versions, paging = FieldVersionRepo.get_all(
             db=db, query_pagination=query, creator=creator
@@ -42,6 +50,16 @@ def list_field_version(
             FieldVersion.from_orm(db_field_version)
             for db_field_version in db_field_versions
         ]
+        if actor:
+            # check the vote...
+            votes = VoteRepo.get_all(
+                db=db, version_ids=[x.id for x in field_versions], user_id=actor.id
+            )
+            votes_dict = {x.id: Vote.from_orm(x) for x in votes}
+            # now append votes into to field_versions
+            for f in field_versions:
+                if f.id in votes_dict:
+                    f.vote_up = votes_dict[f.id].vote_up
     return FieldVersionWithPaging(data=field_versions, paging=paging)
 
 
@@ -66,3 +84,18 @@ def accept_suggestion_to_my_version(
             db_suggestion.accepted = True
         else:
             raise Exception("suggestion and item id not match")
+
+
+def vote(item_id: str, item_create: VoteCreate, actor: User) -> None:
+    with get_db() as db:
+        db_vote = VoteRepo.create(
+            db=db, item_create=item_create, actor=actor, version_id=item_id
+        )
+        # if the db_vote does not raise exception (already voted)
+        FieldVersionRepo.vote(
+            db=db, item_id=item_id, vote_up=db_vote.vote_up
+        )
+
+
+def un_vote(item_id: str, item_create: VoteCreate, actor: User):
+    pass

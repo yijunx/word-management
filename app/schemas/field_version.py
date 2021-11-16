@@ -39,6 +39,7 @@ class FieldVersion(FieldVersionCreate):
 
     up_votes: int
     down_votes: int
+    voted: Optional[bool]
 
     class Config:
         orm_mode = True

@@ -87,3 +87,18 @@ def accept_suggestion_to_my_field_version(body: SuggestionAccept, item_id: str):
         logger.debug(e, exc_info=True)
         return create_response(success=False, message=str(e), status_code=500)
     return create_response(message="suggestion approved..")
+
+
+@bp.route("/<item_id>/vote", methods=["POST"])
+@authorize(require_casbin=False)
+@validate()
+def vote_a_suggestion(body: SuggestionAccept, item_id: str):
+    actor: User = request.environ["actor"]
+    try:
+        FieldVersionService.vote(
+            item_id=item_id, suggestion_id=body.suggestion_id, actor=actor
+        )
+    except Exception as e:
+        logger.debug(e, exc_info=True)
+        return create_response(success=False, message=str(e), status_code=500)
+    return create_response(message="suggestion approved..")

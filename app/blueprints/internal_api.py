@@ -23,7 +23,7 @@ logger = get_logger(__name__)
 
 # add admin user, no need to check token here
 # as the communication is internal
-@bp.route("/admin_users", method=["POST"])
+@bp.route("/admin_users", methods=["POST"])
 @validate()
 def create_admin(body: User):
     UserService.add_admin_user(user=body)
@@ -31,7 +31,7 @@ def create_admin(body: User):
 
 
 # remove admin user
-@bp.route("/admin_users/<user_id>", method=["DELETE"])
+@bp.route("/admin_users/<user_id>", methods=["DELETE"])
 @validate()
 def remove_admin(user_id: str):
     UserService.remove_admin_user(user_id=user_id)
@@ -39,10 +39,8 @@ def remove_admin(user_id: str):
 
 
 # list admin user
-@bp.route("/admin_users", method=["GET"])
+@bp.route("/admin_users", methods=["GET"])
 @validate()
 def list_admin(query: QueryPagination):
-    r = UserService.list_admin_user(
-        query_pagination=query
-    )
+    r = UserService.list_admin_user(query_pagination=query)
     return create_response(response=r)

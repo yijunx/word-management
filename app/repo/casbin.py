@@ -28,17 +28,16 @@ from app.schemas.pagination import QueryPagination, ResponsePagination
 #         )
 #     return db_item
 
-
-def get_all_admin_user_ids(
-    db: Session, admin_role_id: str, query_pagination: QueryPagination
-) -> Tuple[List[models.CasbinRule], ResponsePagination]:
-    query = db.query(models.CasbinRule).filter(models.CasbinRule.v1 == admin_role_id)
+def get_all_admin_user_ids(db: Session, admin_role_id: str, query_pagination: QueryPagination) -> Tuple[List[models.CasbinRule], ResponsePagination]:
+    query = db.query(models.CasbinRule).filter(
+        models.CasbinRule.v1 == admin_role_id
+    )
     total = query.count()
     limit, offset, paging = translate_query_pagination(
         query_pagination=query_pagination, total=total
     )
 
-    db_items = query.order_by(models.Word.title).limit(limit).offset(offset).all()
+    db_items = query.limit(limit).offset(offset).all()
     paging.page_size = len(db_items)
     return db_items, paging
 

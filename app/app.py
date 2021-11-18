@@ -7,6 +7,7 @@ from app.config.app_config import conf
 from datetime import datetime
 
 # blueprints
+from app.blueprints.internal_api import bp as internalBp
 from app.blueprints.word_public_api import bp as WordPublicBp
 from app.blueprints.word_private_api import bp as WordPrivateBp
 from app.blueprints.field_version_public_api import bp as FvPublicBp
@@ -45,6 +46,7 @@ CORS(app, resources={r"/api/*": {"origins": conf.CORS_ALLOWED_ORIGINS.split(",")
 app.json_encoder = CustomJSONEncoder
 
 
+app.register_blueprint(internalBp)
 app.register_blueprint(WordPrivateBp)
 app.register_blueprint(WordPublicBp)
 app.register_blueprint(FvPrivateBp)

@@ -20,7 +20,7 @@ def list_words(query: WordQuery):
     thus in this endpoint, we do not know the user, and does not require casbin
 
     """
-    words_with_paging = WordService.list_word(query=query)
+    words_with_paging = WordService.list_word(query=query, active_only=True, include_merged=False)
     return create_response(response=words_with_paging)
 
 

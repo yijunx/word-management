@@ -122,13 +122,15 @@ def _update_fields_of_an_empty_word(
                 setattr(word_with_fields, fv.field, fv.content)
 
 
-def list_word(query: WordQuery, creator: User = None) -> WordWithFieldsWithPaging:
+def list_word(
+    query: WordQuery, creator: User = None, active_only: bool = True, include_merged: bool = False
+) -> WordWithFieldsWithPaging:
     """used when user search for 62"""
 
     with get_db() as db:
         # retrieve the word
         db_words, paging = WordRepo.get_all(
-            db=db, query_pagination=query, creator=creator
+            db=db, query_pagination=query, creator=creator, active_only=active_only, include_merged=include_merged
         )
 
         words_with_fields = [WordWithFields.from_orm(db_word) for db_word in db_words]
@@ -152,33 +154,41 @@ def get_word(item_id: str) -> WordWithFields:
 def activate_or_deactive_word(item_id: str, actor: User) -> None:
     with get_db() as db:
         db_word = WordRepo.get(db=db, item_id=item_id)
-        db_word.active = not db_word.active
-        db_word.modified_at = datetime.now(timezone.utc)
+        if db_word.merged_to is not None:
+            db_word.active = not db_word.active
+            db_word.modified_at = datetime.now(timezone.utc)
+            db_word.deactivated_by = actor.id
 
 
 def lock_or_unlock_word(item_id: str, actor: User) -> None:
     with get_db() as db:
         db_word = WordRepo.get(db=db, item_id=item_id)
-        db_word.locked = not db_word.locked
-        db_word.modified_at = datetime.now(timezone.utc)
+        if db_word.merged_to is not None:
+            db_word.locked = not db_word.locked
+            db_word.locked_by = actor.id
+            db_word.modified_at = datetime.now(timezone.utc)
 
 
 def merge_word(item_id: str, merged_to_word_id: str, actor: User) -> None:
     with get_db() as db:
         db_word = WordRepo.get(db=db, item_id=item_id)
         merged_to_db_word = WordRepo.get(db=db, item_id=merged_to_word_id)
-        merged_to_db_word.modified_at = datetime.now(timezone.utc)
-        db_word.merged_to = merged_to_db_word.id
-        db_word.active = True
-        db_word.locked = True
+        if db_word.merged_to is not None and merged_to_db_word.merged_to is not None:
+            merged_to_db_word.modified_at = datetime.now(timezone.utc)
+            db_word.merged_to = merged_to_db_word.id
+            db_word.merged_at = datetime.now(timezone.utc)
+            db_word.merged_by = actor.id
+            db_word.active = False
+            db_word.locked = True
+            db_word.locked_by = actor.id
 
-        # need to update the field versions and suggestions also
-        FieldVersionRepo.replace_word_id(
-            db=db, old_word_id=db_word.id, new_word_id=merged_to_word_id
-        )
-        SuggestionRepo.replace_word_id(
-            db=db, old_word_id=db_word.id, new_word_id=merged_to_word_id
-        )
+            # need to update the field versions and suggestions also
+            FieldVersionRepo.replace_word_id(
+                db=db, old_word_id=db_word.id, new_word_id=merged_to_word_id
+            )
+            SuggestionRepo.replace_word_id(
+                db=db, old_word_id=db_word.id, new_word_id=merged_to_word_id
+            )
 
 
 def get_contributor_of_word(item_id: str) -> WordContribution:
@@ -209,6 +219,8 @@ def update_word_title(body: WordPatch, actor: User, item_id: str) -> Word:
 
     with get_db() as db:
         db_word = WordRepo.get(db=db, item_id=item_id)
+        if db_word.locked or db_word.merged_to:
+            raise Exception("This word is locked")
         if body.title:
             db_word.title = body.title
             db_word.modified_at = datetime.now(timezone.utc)

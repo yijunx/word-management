@@ -43,7 +43,7 @@ def get_my_words(query: WordQuery):
     verification, auth headers is needed, but, no need to pass casbin
     """
     actor: User = request.environ["actor"]
-    words_with_paging = WordService.list_word(query=query, creator=actor)
+    words_with_paging = WordService.list_word(query=query, creator=actor, active_only=False, include_merged=True)
     return create_response(response=words_with_paging)
 
 
@@ -91,7 +91,9 @@ def merge_into_another(body: WordMerge, item_id: str):
     and change the word_id in the its field versions"""
     actor: User = request.environ["actor"]
     try:
-        WordService.merge_word(item_id=item_id, merged_to_word_id=body.word_id_to_merge_into, actor=actor)
+        WordService.merge_word(
+            item_id=item_id, merged_to_word_id=body.word_id_to_merge_into, actor=actor
+        )
     except WordDoesNotExist as e:
         return create_response(
             success=False, message=e.message, status_code=e.http_code

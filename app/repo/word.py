@@ -60,10 +60,14 @@ def get_all(
     db: Session,
     query_pagination: WordQuery,
     active_only: bool = True,
+    include_merged: bool = False,
     creator: User = None,
 ) -> Tuple[List[models.Word], ResponsePagination]:
 
     query = db.query(models.Word)
+
+    if not include_merged:
+        query = query.filter(models.Word.merged_to == None)
 
     if creator:
         query = query.filter(models.Word.created_by == creator.id)

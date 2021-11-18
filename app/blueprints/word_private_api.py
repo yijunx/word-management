@@ -72,8 +72,7 @@ def activate_or_deactivate(item_id: str):
     """used for flipping the active flag, only admin user can do this"""
     actor: User = request.environ["actor"]
     try:
-        pass
-    # word = WordService.update_word_title(body=body, actor=actor, item_id=item_id)
+        WordService.activate_or_deactive_word(item_id=item_id, actor=actor)
     except WordDoesNotExist as e:
         return create_response(
             success=False, message=e.message, status_code=e.http_code
@@ -92,8 +91,7 @@ def merge_into_another(body: WordMerge, item_id: str):
     and change the word_id in the its field versions"""
     actor: User = request.environ["actor"]
     try:
-        pass
-    # word = WordService.update_word_title(body=body, actor=actor, item_id=item_id)
+        WordService.merge_word(item_id=item_id, merged_to_word_id=body.word_id_to_merge_into, actor=actor)
     except WordDoesNotExist as e:
         return create_response(
             success=False, message=e.message, status_code=e.http_code
@@ -111,8 +109,7 @@ def lock_or_unlock_word(item_id: str):
     only admin can do this, purpose is to stop new content being generated on mature stuff"""
     actor: User = request.environ["actor"]
     try:
-        pass
-    # word = WordService.update_word_title(body=body, actor=actor, item_id=item_id)
+        WordService.lock_or_unlock_word(item_id=item_id, actor=actor)
     except WordDoesNotExist as e:
         return create_response(
             success=False, message=e.message, status_code=e.http_code

@@ -149,6 +149,38 @@ def get_word(item_id: str) -> WordWithFields:
     return word_with_fields
 
 
+def activate_or_deactive_word(item_id: str, actor: User) -> None:
+    with get_db() as db:
+        db_word = WordRepo.get(db=db, item_id=item_id)
+        db_word.active = not db_word.active
+        db_word.modified_at = datetime.now(timezone.utc)
+
+
+def lock_or_unlock_word(item_id: str, actor: User) -> None:
+    with get_db() as db:
+        db_word = WordRepo.get(db=db, item_id=item_id)
+        db_word.locked = not db_word.locked
+        db_word.modified_at = datetime.now(timezone.utc)
+
+
+def merge_word(item_id: str, merged_to_word_id: str, actor: User) -> None:
+    with get_db() as db:
+        db_word = WordRepo.get(db=db, item_id=item_id)
+        merged_to_db_word = WordRepo.get(db=db, item_id=merged_to_word_id)
+        merged_to_db_word.modified_at = datetime.now(timezone.utc)
+        db_word.merged_to = merged_to_db_word.id
+        db_word.active = True
+        db_word.locked = True
+
+        # need to update the field versions and suggestions also
+        FieldVersionRepo.replace_word_id(
+            db=db, old_word_id=db_word.id, new_word_id=merged_to_word_id
+        )
+        SuggestionRepo.replace_word_id(
+            db=db, old_word_id=db_word.id, new_word_id=merged_to_word_id
+        )
+
+
 def get_contributor_of_word(item_id: str) -> WordContribution:
     with get_db() as db:
         db_word = WordRepo.get(db=db, item_id=item_id)
@@ -157,7 +189,6 @@ def get_contributor_of_word(item_id: str) -> WordContribution:
         # add creator
         contributors.append(db_word.creator)
         contributors_ids.add(db_word.created_by)
-        print(f"[WORD] adding {db_word.creator.name}")
 
         # add field versions creators
         for fv in db_word.field_versions:

@@ -43,6 +43,12 @@ class Word(BaseModel):
     modified_at: datetime
     created_by: str
 
+    merged_by: Optional[str]
+    merged_at: Optional[datetime]
+
+    locked_by: Optional[str]
+    deactivated_by: Optional[str]
+
     class Config:
         orm_mode = True
 

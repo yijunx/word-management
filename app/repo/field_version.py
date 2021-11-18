@@ -50,6 +50,13 @@ def delete(db: Session, item_id: str) -> None:
     db.delete(db_item)
 
 
+def replace_word_id(db: Session, old_word_id: str, new_word_id: str) -> None:
+    """used when merge word"""
+    db.query(models.FieldVersion).filter(
+        models.FieldVersion.word_id == old_word_id
+    ).update({"word_id": new_word_id})
+
+
 def get(db: Session, item_id: str) -> models.FieldVersion:
     db_item = (
         db.query(models.FieldVersion).filter(models.FieldVersion.id == item_id).first()

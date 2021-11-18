@@ -52,6 +52,12 @@ class Word(Base):
     modified_at = Column(DateTime, nullable=False)
     created_by = Column(String, ForeignKey("users.id"), nullable=False)
 
+    # to store the management status...
+    merged_by = Column(String, nullable=True)
+    merged_at = Column(DateTime, nullable=True)
+
+    locked_by = Column(String, nullable=True)
+    deactivated_by = Column(String, nullable=True)
     # User is the parent of this
     creator = relationship("User", back_populates="words")
 

@@ -3,9 +3,9 @@ from app.casbin.role_definition import ResourceRightsEnum, PolicyTypeEnum
 from app.db.models import models
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
-from typing import List
-
-from app.schemas.pagination import QueryPagination
+from typing import List, Tuple
+from app.repo.util import translate_query_pagination
+from app.schemas.pagination import QueryPagination, ResponsePagination
 
 
 # def create_policy(
@@ -28,11 +28,19 @@ from app.schemas.pagination import QueryPagination
 #         )
 #     return db_item
 
-def get_all_admin_user_ids(db: Session, admin_role_id: str, query_pagination: QueryPagination) -> List[str]:
-    query = db.query(models.CasbinRule).filter(
-        models.CasbinRule.v1 == admin_role_id
+
+def get_all_admin_user_ids(
+    db: Session, admin_role_id: str, query_pagination: QueryPagination
+) -> Tuple[List[models.CasbinRule], ResponsePagination]:
+    query = db.query(models.CasbinRule).filter(models.CasbinRule.v1 == admin_role_id)
+    total = query.count()
+    limit, offset, paging = translate_query_pagination(
+        query_pagination=query_pagination, total=total
     )
-    return [db_casbin_rule.v0 for db_casbin_rule in query.all()]
+
+    db_items = query.order_by(models.Word.title).limit(limit).offset(offset).all()
+    paging.page_size = len(db_items)
+    return db_items, paging
 
 
 def delete_policies_by_resource_id(db: Session, resource_id: str) -> None:

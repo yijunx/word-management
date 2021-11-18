@@ -123,14 +123,21 @@ def _update_fields_of_an_empty_word(
 
 
 def list_word(
-    query: WordQuery, creator: User = None, active_only: bool = True, include_merged: bool = False
+    query: WordQuery,
+    creator: User = None,
+    active_only: bool = True,
+    include_merged: bool = False,
 ) -> WordWithFieldsWithPaging:
     """used when user search for 62"""
 
     with get_db() as db:
         # retrieve the word
         db_words, paging = WordRepo.get_all(
-            db=db, query_pagination=query, creator=creator, active_only=active_only, include_merged=include_merged
+            db=db,
+            query_pagination=query,
+            creator=creator,
+            active_only=active_only,
+            include_merged=include_merged,
         )
 
         words_with_fields = [WordWithFields.from_orm(db_word) for db_word in db_words]

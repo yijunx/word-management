@@ -43,7 +43,9 @@ def get_my_words(query: WordQuery):
     verification, auth headers is needed, but, no need to pass casbin
     """
     actor: User = request.environ["actor"]
-    words_with_paging = WordService.list_word(query=query, creator=actor, active_only=False, include_merged=True)
+    words_with_paging = WordService.list_word(
+        query=query, creator=actor, active_only=False, include_merged=True
+    )
     return create_response(response=words_with_paging)
 
 

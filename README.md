@@ -2,6 +2,9 @@
 
 manages dialects words
 
+inactive -> means not show in public only in private
+locked -> no longer accept edits
+
 ## word schema
 
 

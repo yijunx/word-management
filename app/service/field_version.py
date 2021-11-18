@@ -99,3 +99,9 @@ def unvote(item_id: str, actor: User):
     with get_db() as db:
         db_vote = VoteRepo.delete(db=db, version_id=item_id, user_id=actor.id)
         FieldVersionRepo.unvote(db=db, item_id=item_id, vote_up=db_vote.vote_up)
+
+
+def activate_or_deactive_word(item_id: str, actor: User) -> None:
+    with get_db() as db:
+        db_item = FieldVersionRepo.get(db=db, item_id=item_id)
+        db_item.active = False

@@ -26,7 +26,8 @@ def create_field_version(item_create: FieldVersionCreate, actor: User) -> FieldV
         casbin_enforcer.add_policy(
             actor.id,
             get_resource_id_from_item_id(
-                item_id=db_field_version.id, domain=ResourceDomainEnum.field_versions
+                item_id=db_field_version.id,
+                domain=ResourceDomainEnum.field_versions,
             ),
             ResourceRightsEnum.own_field_version,
         )

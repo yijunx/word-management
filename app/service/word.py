@@ -1,5 +1,7 @@
 from datetime import datetime, timezone
 from typing import List
+
+import casbin
 from app.casbin.role_definition import ResourceDomainEnum, ResourceRightsEnum
 from app.db.models import models
 from app.db.database import get_db
@@ -40,7 +42,7 @@ def _create_field_version_and_add_policy(
         get_resource_id_from_item_id(
             # for field version resource name,
             # word id is added for ease of deleting
-            item_id=db_field_version.id + ":" + word_id,
+            item_id=db_field_version.id,
             domain=ResourceDomainEnum.field_versions,
         ),
         ResourceRightsEnum.own_field_version,
@@ -238,7 +240,27 @@ def update_word_title(body: WordPatch, actor: User, item_id: str) -> Word:
 def delete_word(item_id) -> None:
     """for test purpose"""
     with get_db() as db:
+        word = WordRepo.get(db=db, item_id=item_id)
+        for field_version in word.field_versions:
+            for suggestion in field_version.suggestions:
+                CasbinRepo.delete_policies_by_resource_id(
+                    db=db,
+                    resource_id=get_resource_id_from_item_id(
+                        item_id=suggestion.id, domain=ResourceDomainEnum.suggestions
+                    ),
+                )
+            CasbinRepo.delete_policies_by_resource_id(
+                db=db,
+                resource_id=get_resource_id_from_item_id(
+                    item_id=field_version.id, domain=ResourceDomainEnum.field_versions
+                ),
+            )
+        CasbinRepo.delete_policies_by_resource_id(
+            db=db,
+            resource_id=get_resource_id_from_item_id(
+                item_id=item_id, domain=ResourceDomainEnum.words
+            ),
+        )
         SuggestionRepo.delete_all(db=db, word_id=item_id)
         FieldVersionRepo.delete_all(db=db, word_id=item_id)
         WordRepo.delete(db=db, item_id=item_id)
-        CasbinRepo.delete_policies_by_word_id(db=db, word_id=item_id)

@@ -22,7 +22,8 @@ def create_suggestion(item_create: SuggestionCreate, actor: User) -> Suggestion:
         casbin_enforcer.add_policy(
             actor.id,
             get_resource_id_from_item_id(
-                item_id=db_suggestion.id, domain=ResourceDomainEnum.suggestions
+                item_id=db_suggestion.id,
+                domain=ResourceDomainEnum.suggestions,
             ),
             ResourceRightsEnum.own_suggestion,
         )

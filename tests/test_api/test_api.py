@@ -305,7 +305,9 @@ def test_list_word_from_public_after_deactivate(
     r = client_without_user.get("/public_api/words")
     print(r.get_json())
     words_wth_paging = WordWithFieldsWithPaging(**r.get_json()["response"])
-    assert word_create.title not in [x.title for x in words_wth_paging.data]
+    assert word_create.pronunciation not in [
+        x.pronunciation for x in words_wth_paging.data
+    ]
 
 
 def test_reactive_word(client_from_admin: FlaskClient):

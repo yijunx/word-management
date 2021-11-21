@@ -52,3 +52,10 @@ def update_suggesion_content(
         item = Suggestion.from_orm(db_item)
 
     return item
+
+
+def activate_or_deactive_suggestion(item_id: str, actor: User) -> None:
+    with get_db() as db:
+        db_item = SuggestionRepo.get(db=db, item_id=item_id)
+        db_item.active = not db_item.active
+        db_item.modified_at = datetime.now(timezone.utc)

@@ -102,7 +102,8 @@ def unvote(item_id: str, actor: User):
         FieldVersionRepo.unvote(db=db, item_id=item_id, vote_up=db_vote.vote_up)
 
 
-def activate_or_deactive_word(item_id: str, actor: User) -> None:
+def activate_or_deactive_field_version(item_id: str, actor: User) -> None:
     with get_db() as db:
         db_item = FieldVersionRepo.get(db=db, item_id=item_id)
-        db_item.active = False
+        db_item.active = not db_item.active
+        db_item.modified_at = datetime.now(timezone.utc)

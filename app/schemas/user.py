@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel
 
 
@@ -9,6 +10,11 @@ class User(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class UserPatch(BaseModel):
+    name: Optional[str]
+    email: Optional[str]
 
 
 class UserInContribution(BaseModel):

@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Union
 from sqlalchemy.sql.expression import and_, or_
 from app.schemas.pagination import ResponsePagination
 from app.db.models import models
@@ -39,10 +39,8 @@ def delete(db: Session, item_id: str) -> None:
     db.delete(db_item)
 
 
-def get(db: Session, item_id: str) -> models.User:
+def get(db: Session, item_id: str) -> Union[models.User, None]:
     db_item = db.query(models.User).filter(models.User.id == item_id).first()
-    if not db_item:
-        raise Exception("user does not exist")
     return db_item
 
 

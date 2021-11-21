@@ -3,7 +3,7 @@ from flask import Blueprint
 from flask_pydantic import validate
 from app.schemas.pagination import QueryPagination
 from app.util.app_logging import get_logger
-from app.schemas.user import User
+from app.schemas.user import User, UserPatch
 import app.service.user as UserService
 from app.util.response_util import create_response
 
@@ -44,3 +44,11 @@ def remove_admin(user_id: str):
 def list_admin(query: QueryPagination):
     r = UserService.list_admin_user(query_pagination=query)
     return create_response(response=r)
+
+
+# modify user name or email
+@bp.route("/users/<user_id>", methods=["PATCH"])
+@validate()
+def update_user_info(user_id: str, body: UserPatch):
+    UserService.patch_user(item_id=user_id, user_patch=body)
+    return create_response(message="user updated")

@@ -23,6 +23,7 @@ WORD_ID_TO_MERGE = ""
 FIELD_VERSION_ID = ""
 SUGGESTION_ID = ""
 NEW_FIELD_VERSION_CONTENT = "new content"
+WORD_NEW_TITLE = "new_title"
 
 
 def test_create_word_from_user_one(
@@ -60,7 +61,7 @@ def test_list_word_from_public(
 
 def test_patch_word_from_user_two(client_from_user_two: FlaskClient):
     r = client_from_user_two.patch(
-        f"/private_api/words/{WORD_ID}", json={"title": "new_title"}
+        f"/private_api/words/{WORD_ID}", json={"title": WORD_NEW_TITLE}
     )
     assert r.status_code == 403
 
@@ -257,7 +258,9 @@ def test_merge_word(client_from_admin: FlaskClient):
 
 
 def test_get_field_versions_from_merged(
-    client_without_user: FlaskClient, word_create_to_merge: WordCreate
+    client_without_user: FlaskClient,
+    word_create_to_merge: WordCreate,
+    word_create: WordCreate,
 ):
     r = client_without_user.get(
         f"/public_api/field_versions",
@@ -268,6 +271,7 @@ def test_get_field_versions_from_merged(
     assert word_create_to_merge.tags in [
         x.content for x in field_versions_with_paging.data
     ]
+    assert word_create.tags in [x.content for x in field_versions_with_paging.data]
 
 
 def test_merge_with_user_account(client_from_user_two: FlaskClient):
@@ -299,15 +303,11 @@ def test_deactivate_word(client_from_admin: FlaskClient):
     assert r.status_code == 200
 
 
-def test_list_word_from_public_after_deactivate(
-    client_without_user: FlaskClient, word_create: WordCreate
-):
+def test_list_word_from_public_after_deactivate(client_without_user: FlaskClient):
     r = client_without_user.get("/public_api/words")
     print(r.get_json())
     words_wth_paging = WordWithFieldsWithPaging(**r.get_json()["response"])
-    assert word_create.pronunciation not in [
-        x.pronunciation for x in words_wth_paging.data
-    ]
+    assert WORD_NEW_TITLE not in [x.title for x in words_wth_paging.data]
 
 
 def test_reactive_word(client_from_admin: FlaskClient):
@@ -323,7 +323,7 @@ def test_list_word_from_public_after_reactivate(
     r = client_without_user.get("/public_api/words")
     print(r.get_json())
     words_wth_paging = WordWithFieldsWithPaging(**r.get_json()["response"])
-    assert word_create.pronunciation in [x.pronunciation for x in words_wth_paging.data]
+    assert WORD_NEW_TITLE in [x.title for x in words_wth_paging.data]
 
 
 def test_delete_word():

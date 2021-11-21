@@ -1,5 +1,5 @@
 from app.schemas.casbin_rule import CasbinRuleWithPaging, CasbinRule
-from app.schemas.user import User
+from app.schemas.user import User, UserPatch
 from app.db.database import get_db
 import app.repo.user as UserRepo
 from app.casbin.enforcer import casbin_enforcer
@@ -7,9 +7,19 @@ import app.repo.casbin as CasbinRepo
 from app.schemas.pagination import QueryPagination
 
 
-def delete_user(item_id):
+def delete_user(item_id: str):
     with get_db() as db:
         UserRepo.delete(db=db, item_id=item_id)
+
+
+def patch_user(item_id: str, user_patch: UserPatch):
+    with get_db() as db:
+        db_user = UserRepo.get(db=db, item_id=item_id)
+        if db_user:
+            if user_patch.name:
+                db_user.name = user_patch.name
+            if user_patch.email:
+                db_user.email = user_patch.email
 
 
 def add_admin_user(user: User):

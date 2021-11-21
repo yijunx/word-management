@@ -99,7 +99,9 @@ def get_all_field_versions_of_a_word(
     query = query.filter(
         and_(models.FieldVersion.word_id == word_id, models.FieldVersion.active == True)
     )
-    db_items = query.all()
+    # old one on top
+    # so if the vote are same, old version will dominate
+    db_items = query.order_by(models.FieldVersion.created_at).all()
 
     # need to apply the manual pagination here...maybe at service level..
     return db_items

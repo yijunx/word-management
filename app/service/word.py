@@ -163,26 +163,35 @@ def get_word(item_id: str) -> WordWithFields:
 def activate_or_deactive_word(item_id: str, actor: User) -> None:
     with get_db() as db:
         db_word = WordRepo.get(db=db, item_id=item_id)
-        if db_word.merged_to is not None:
+        if db_word.merged_to is None:
             db_word.active = not db_word.active
             db_word.modified_at = datetime.now(timezone.utc)
             db_word.deactivated_by = actor.id
+        else:
+            raise Exception("this word is merged..")
 
 
 def lock_or_unlock_word(item_id: str, actor: User) -> None:
+    """cannot do this on merged word"""
     with get_db() as db:
         db_word = WordRepo.get(db=db, item_id=item_id)
-        if db_word.merged_to is not None:
+        if db_word.merged_to is None:
             db_word.locked = not db_word.locked
             db_word.locked_by = actor.id
             db_word.modified_at = datetime.now(timezone.utc)
+        else:
+            raise Exception("this word is merged..")
 
 
 def merge_word(item_id: str, merged_to_word_id: str, actor: User) -> None:
     with get_db() as db:
         db_word = WordRepo.get(db=db, item_id=item_id)
         merged_to_db_word = WordRepo.get(db=db, item_id=merged_to_word_id)
-        if db_word.merged_to is not None and merged_to_db_word.merged_to is not None:
+        if (
+            db_word.merged_to is None
+            and merged_to_db_word.merged_to is None
+            and db_word.dialect == merged_to_db_word.dialect
+        ):
             merged_to_db_word.modified_at = datetime.now(timezone.utc)
             db_word.merged_to = merged_to_db_word.id
             db_word.merged_at = datetime.now(timezone.utc)
@@ -198,6 +207,8 @@ def merge_word(item_id: str, merged_to_word_id: str, actor: User) -> None:
             SuggestionRepo.replace_word_id(
                 db=db, old_word_id=db_word.id, new_word_id=merged_to_word_id
             )
+        else:
+            raise Exception("cannot merge!")
 
 
 def get_contributor_of_word(item_id: str) -> WordContribution:

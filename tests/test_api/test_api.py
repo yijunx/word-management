@@ -19,6 +19,7 @@ import app.service.user as UserService
 
 
 WORD_ID = ""
+WORD_ID_TO_MERGE = ""
 FIELD_VERSION_ID = ""
 SUGGESTION_ID = ""
 NEW_FIELD_VERSION_CONTENT = "new content"
@@ -231,9 +232,102 @@ def test_unvote_a_not_voted_field_version(
     assert r.status_code == 404
 
 
+def test_create_word_from_user_two(
+    client_from_user_two: FlaskClient, word_create_to_merge: WordCreate
+):
+    """later we will merge"""
+    r = client_from_user_two.post(
+        "/private_api/words", json=word_create_to_merge.dict()
+    )
+    word_with_fields = WordWithFields(**r.get_json()["response"])
+    global WORD_ID_TO_MERGE
+    WORD_ID_TO_MERGE = word_with_fields.id
+    assert r.status_code == 200
+    assert word_with_fields.explanation == word_create_to_merge.explanation
+    assert word_with_fields.tags == word_create_to_merge.tags
+    assert word_with_fields.usage == word_create_to_merge.usage
+
+
+def test_merge_word(client_from_admin: FlaskClient):
+    r = client_from_admin.post(
+        f"/private_api/words/{WORD_ID_TO_MERGE}/merge_into_another",
+        json={"word_id_to_merge_into": WORD_ID},
+    )
+    assert r.status_code == 200
+
+
+def test_get_field_versions_from_merged(
+    client_without_user: FlaskClient, word_create_to_merge: WordCreate
+):
+    r = client_without_user.get(
+        f"/public_api/field_versions",
+        query_string={"word_id": WORD_ID, "field": "tags"},
+    )
+    field_versions_with_paging = FieldVersionWithPaging(**r.get_json()["response"])
+    assert r.status_code == 200
+    assert word_create_to_merge.tags in [
+        x.content for x in field_versions_with_paging.data
+    ]
+
+
+def test_merge_with_user_account(client_from_user_two: FlaskClient):
+    r = client_from_user_two.post(
+        f"/private_api/words/{WORD_ID_TO_MERGE}/merge_into_another",
+        json={"word_id_to_merge_into": WORD_ID},
+    )
+    assert r.status_code == 403
+
+
+def test_lock_word(client_from_admin: FlaskClient):
+    r = client_from_admin.post(
+        f"/private_api/words/{WORD_ID}/lock",
+    )
+    assert r.status_code == 200
+
+
+def test_unlock_merged_word(client_from_admin: FlaskClient):
+    r = client_from_admin.post(
+        f"/private_api/words/{WORD_ID_TO_MERGE}/lock",
+    )
+    assert r.status_code == 500
+
+
+def test_deactivate_word(client_from_admin: FlaskClient):
+    r = client_from_admin.post(
+        f"/private_api/words/{WORD_ID}/deactivate",
+    )
+    assert r.status_code == 200
+
+
+def test_list_word_from_public_after_deactivate(
+    client_without_user: FlaskClient, word_create: WordCreate
+):
+    r = client_without_user.get("/public_api/words")
+    print(r.get_json())
+    words_wth_paging = WordWithFieldsWithPaging(**r.get_json()["response"])
+    assert word_create.title not in [x.title for x in words_wth_paging.data]
+
+
+def test_reactive_word(client_from_admin: FlaskClient):
+    r = client_from_admin.post(
+        f"/private_api/words/{WORD_ID}/deactivate",
+    )
+    assert r.status_code == 200
+
+
+def test_list_word_from_public_after_reactivate(
+    client_without_user: FlaskClient, word_create: WordCreate
+):
+    r = client_without_user.get("/public_api/words")
+    print(r.get_json())
+    words_wth_paging = WordWithFieldsWithPaging(**r.get_json()["response"])
+    assert word_create.pronunciation in [x.pronunciation for x in words_wth_paging.data]
+
+
 def test_delete_word():
     """just to clean up"""
     WordService.delete_word(item_id=WORD_ID)
+    WordService.delete_word(item_id=WORD_ID_TO_MERGE)
 
 
 def test_delete_user(user_one: User, user_two: User):

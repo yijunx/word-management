@@ -30,3 +30,15 @@ def word_create() -> WordCreate:
         tags="tags",
         dialect=DialectEnum.hangzhouhua,
     )
+
+
+@pytest.fixture
+def word_create_to_merge() -> WordCreate:
+    return WordCreate(
+        title="title_to_merge",
+        explanation="explanation2",
+        pronunciation="some string2",
+        usage="usage2",
+        tags="tags2",
+        dialect=DialectEnum.hangzhouhua,
+    )

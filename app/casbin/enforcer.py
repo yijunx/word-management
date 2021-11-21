@@ -3,6 +3,7 @@ import casbin
 from app.config.app_config import conf
 from app.casbin.role_definition import (
     ResourceRightsEnum,
+    ResourceDomainEnum,
     resource_right_action_mapping,
 )
 import os
@@ -36,9 +37,7 @@ def create_casbin_enforcer():
         admin users will have * in obj in the admin role policy, so admin user can
         do things on any resource
         """
-        if object_from_policy == "*" or object_from_request.startswith(
-            object_from_policy
-        ):
+        if object_from_request.startswith(object_from_policy):
             # * means usper admin
             # startwith means specific dialect admin
             return True
@@ -52,7 +51,13 @@ def create_casbin_enforcer():
 
     # well need to group all below stuff into seed...
     casbin_enforcer.add_policy(
-        "admin-role-id", conf.RESOURCE_NAME_WORD, ResourceRightsEnum.admin
+        "admin-role-id", ResourceDomainEnum.words, ResourceRightsEnum.admin
+    )
+    casbin_enforcer.add_policy(
+        "admin-role-id", ResourceDomainEnum.field_versions, ResourceRightsEnum.admin
+    )
+    casbin_enforcer.add_policy(
+        "admin-role-id", ResourceDomainEnum.suggestions, ResourceRightsEnum.admin
     )
     admin_user_id = seed_or_get_admin_user()
     casbin_enforcer.add_grouping_policy(admin_user_id, "admin-role-id")

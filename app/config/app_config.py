@@ -8,16 +8,12 @@ class Settings(BaseSettings):
     SERVICE_NAME: str
     SERVICE_VERSION: str
     DOMAIN_NAME: str
-    # APP_SECRET: str
 
     DATABASE_URI: str
 
     DEFAULT_PAGE_SIZE: int = 5
     CORS_ALLOWED_ORIGINS: str
     WORD_ADMIN_ROLE_ID: str
-
-    RESOURCE_NAME_WORD: str = "words/"
-    OTHER_SERVICES_URL: str = "not set up yet"
 
 
 class ProdConfig(Settings):

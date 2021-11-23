@@ -15,6 +15,10 @@ class Settings(BaseSettings):
     CORS_ALLOWED_ORIGINS: str
     WORD_ADMIN_ROLE_ID: str
 
+    CELERY_SERVICE_NAME: str
+    CELERY_BROKER: str
+    CELERY_QUEUE: str
+
 
 class ProdConfig(Settings):
     pass

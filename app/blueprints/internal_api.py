@@ -1,6 +1,7 @@
 # this is the internal api
 from flask import Blueprint
 from flask_pydantic import validate
+from app.exceptions.user import AdminUserDoesNotExist
 from app.schemas.pagination import QueryPagination
 from app.util.app_logging import get_logger
 from app.schemas.user import User, UserPatch
@@ -42,7 +43,12 @@ def remove_admin(user_id: str):
 @bp.route("/admin_users/<user_id>", methods=["GET"])
 @validate()
 def get_admin(user_id: str):
-    r = UserService.get_admin_user(user_id=user_id)
+    try:
+        r = UserService.get_admin_user(user_id=user_id)
+    except AdminUserDoesNotExist as e:
+        return create_response(
+            success=False, status_code=e.http_code, message=e.message
+        )
     return create_response(response=r)
 
 

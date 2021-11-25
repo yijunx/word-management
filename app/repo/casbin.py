@@ -3,6 +3,7 @@ from app.casbin.role_definition import PolicyTypeEnum
 from app.db.models import models
 from sqlalchemy.orm import Session
 from typing import List, Tuple, Union
+from app.exceptions.user import AdminUserDoesNotExist
 from app.repo.util import translate_query_pagination
 from app.schemas.pagination import QueryPagination, ResponsePagination
 
@@ -53,12 +54,12 @@ def delete_policies_by_resource_id(db: Session, resource_id: str) -> None:
     query.delete()
 
 
-def get_grouping(
-    db: Session, role_id: str, user_id: str
-) -> Union[models.CasbinRule, None]:
+def get_grouping(db: Session, role_id: str, user_id: str) -> models.CasbinRule:
     db_casbin_rule = (
         db.query(models.CasbinRule)
         .filter(and_(models.CasbinRule.v0 == user_id, models.CasbinRule.v1 == role_id))
         .first()
     )
+    if db_casbin_rule is None:
+        raise AdminUserDoesNotExist(user_id=user_id)
     return db_casbin_rule

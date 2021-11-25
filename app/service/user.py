@@ -36,8 +36,8 @@ def get_admin_user(user_id: str) -> CasbinRule:
         db_rule = CasbinRepo.get_grouping(
             db=db, role_id=conf.WORD_ADMIN_ROLE_ID, user_id=user_id
         )
-        casnbin_rule = CasbinRule.from_orm(db_rule)
-    return casnbin_rule
+        casbin_rule = CasbinRule.from_orm(db_rule)
+    return casbin_rule
 
 
 def list_admin_user(query_pagination: QueryPagination) -> CasbinRuleWithPaging:

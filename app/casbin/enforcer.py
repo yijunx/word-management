@@ -51,16 +51,20 @@ def create_casbin_enforcer():
 
     # well need to group all below stuff into seed...
     casbin_enforcer.add_policy(
-        "admin-role-id", ResourceDomainEnum.words, ResourceRightsEnum.admin
+        conf.WORD_ADMIN_ROLE_ID, ResourceDomainEnum.words, ResourceRightsEnum.admin
     )
     casbin_enforcer.add_policy(
-        "admin-role-id", ResourceDomainEnum.field_versions, ResourceRightsEnum.admin
+        conf.WORD_ADMIN_ROLE_ID,
+        ResourceDomainEnum.field_versions,
+        ResourceRightsEnum.admin,
     )
     casbin_enforcer.add_policy(
-        "admin-role-id", ResourceDomainEnum.suggestions, ResourceRightsEnum.admin
+        conf.WORD_ADMIN_ROLE_ID,
+        ResourceDomainEnum.suggestions,
+        ResourceRightsEnum.admin,
     )
     admin_user_id = seed_or_get_admin_user()
-    casbin_enforcer.add_grouping_policy(admin_user_id, "admin-role-id")
+    casbin_enforcer.add_grouping_policy(admin_user_id, conf.WORD_ADMIN_ROLE_ID)
     # here, at first, there is no admin, admin only added via user management...
     # it is done via internal api call
     # but we can create specific service admin in the seed of the user management service

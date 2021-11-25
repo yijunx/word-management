@@ -5,6 +5,7 @@ import app.repo.user as UserRepo
 from app.casbin.enforcer import casbin_enforcer
 import app.repo.casbin as CasbinRepo
 from app.schemas.pagination import QueryPagination
+from app.config.app_config import conf
 
 
 def delete_user(item_id: str):
@@ -23,17 +24,28 @@ def patch_user(item_id: str, user_patch: UserPatch):
 
 
 def add_admin_user(user: User):
-    casbin_enforcer.add_grouping_policy(user.id, "admin-role-id")
+    casbin_enforcer.add_grouping_policy(user.id, conf.WORD_ADMIN_ROLE_ID)
 
 
 def remove_admin_user(user_id: str):
-    casbin_enforcer.remove_grouping_policy(user_id, "admin-role-id")
+    casbin_enforcer.remove_grouping_policy(user_id, conf.WORD_ADMIN_ROLE_ID)
+
+
+def get_admin_user(user_id: str) -> CasbinRule:
+    with get_db() as db:
+        db_rule = CasbinRepo.get_grouping(
+            db=db, role_id=conf.WORD_ADMIN_ROLE_ID, user_id=user_id
+        )
+        casnbin_rule = CasbinRule.from_orm(db_rule)
+    return casnbin_rule
 
 
 def list_admin_user(query_pagination: QueryPagination) -> CasbinRuleWithPaging:
     with get_db() as db:
         db_casbin_rules, paging = CasbinRepo.get_all_admin_user_ids(
-            db=db, admin_role_id="admin-role-id", query_pagination=query_pagination
+            db=db,
+            admin_role_id=conf.WORD_ADMIN_ROLE_ID,
+            query_pagination=query_pagination,
         )
         casbin_rules = [CasbinRule.from_orm(x) for x in db_casbin_rules]
     return CasbinRuleWithPaging(data=casbin_rules, paging=paging)

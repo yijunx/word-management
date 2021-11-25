@@ -1,9 +1,8 @@
 from sqlalchemy.sql.expression import and_
-from app.casbin.role_definition import ResourceRightsEnum, PolicyTypeEnum
+from app.casbin.role_definition import PolicyTypeEnum
 from app.db.models import models
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import IntegrityError
-from typing import List, Tuple
+from typing import List, Tuple, Union
 from app.repo.util import translate_query_pagination
 from app.schemas.pagination import QueryPagination, ResponsePagination
 
@@ -52,3 +51,14 @@ def delete_policies_by_resource_id(db: Session, resource_id: str) -> None:
         )
     )
     query.delete()
+
+
+def get_grouping(
+    db: Session, role_id: str, user_id: str
+) -> Union[models.CasbinRule, None]:
+    db_casbin_rule = (
+        db.query(models.CasbinRule)
+        .filter(and_(models.CasbinRule.v0 == user_id, models.CasbinRule.v1 == role_id))
+        .first()
+    )
+    return db_casbin_rule

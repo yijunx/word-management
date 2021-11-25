@@ -39,6 +39,14 @@ def remove_admin(user_id: str):
 
 
 # list admin user
+@bp.route("/admin_users/<user_id>", methods=["GET"])
+@validate()
+def get_admin(user_id: str):
+    r = UserService.get_admin_user(user_id=user_id)
+    return create_response(response=r)
+
+
+# list admin user
 @bp.route("/admin_users", methods=["GET"])
 @validate()
 def list_admin(query: QueryPagination):

@@ -73,8 +73,13 @@ def get_all(
         query = query.filter(models.Word.created_by == creator.id)
 
     # search based on tag or title
-    if query_pagination.tag:
-        query = query.filter(models.Word.tag.ilike(f"%#{query_pagination.tag}%"))
+    # well.. word does not have TAG!!!!!
+    # TAG is in the fields version
+    # well this is bad
+    # if query_pagination.tag:  # well this is doing a full scan... this is bad..
+    #     query = query.filter(models.Word.tag.ilike(f"%#{query_pagination.tag}%"))
+    # well tag must be separately managed in the tag table
+    # and tags points to words
     elif query_pagination.title:
         query = query.filter(models.Word.title.ilike(f"%{query_pagination.title}%"))
     else:

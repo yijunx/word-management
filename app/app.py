@@ -14,6 +14,7 @@ from app.blueprints.field_version_public_api import bp as FvPublicBp
 from app.blueprints.field_version_private_api import bp as FvPrivateBp
 from app.blueprints.suggestion_public_api import bp as SuggestionPublicBp
 from app.blueprints.suggestion_private_api import bp as SuggestionPrivateBp
+from app.blueprints.frontend_utils_api import bp as UtilsBp
 
 
 logger = get_logger(__name__)
@@ -53,4 +54,4 @@ app.register_blueprint(FvPrivateBp)
 app.register_blueprint(FvPublicBp)
 app.register_blueprint(SuggestionPrivateBp)
 app.register_blueprint(SuggestionPublicBp)
-# app.register_blueprint(internalBp)
+app.register_blueprint(UtilsBp)

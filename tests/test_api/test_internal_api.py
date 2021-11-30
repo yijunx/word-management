@@ -1,6 +1,5 @@
 from flask.testing import FlaskClient
 from app.schemas.user import User
-from tests.test_api.conftest import client_without_user
 from app.schemas.casbin_rule import CasbinRule, CasbinRuleWithPaging
 
 

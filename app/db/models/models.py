@@ -36,13 +36,24 @@ class User(Base):
     field_versions = relationship("FieldVersion", back_populates="creator")
     votes = relationship("Vote", back_populates="creator")
 
+class Tag(Base):
+    # each word has a few tags
+    # each tag can pop up a few words..
+    __tablename__ = "tags"
+    id = Column(String, primary_key=True, index=True)
+    content = Column(String, index=True)  
+    # index, has to be unique, we will search based on this
+    # thus indexed
+    words = relationship("TagWordAssociation", back_populates="tag")
+
 
 class Word(Base):
     __tablename__ = "words"
     __table_args__ = (UniqueConstraint("title", "dialect", name="_title_dialect_uc"),)
 
     id = Column(String, primary_key=True, index=True)
-    title = Column(String, nullable=False)
+    title = Column(String, nullable=False, index=True)
+    # will search based on title, so indexed
     locked = Column(Boolean, nullable=False)
     merged_to = Column(String, nullable=True)
     dialect = Column(String, nullable=False)
@@ -63,6 +74,18 @@ class Word(Base):
 
     # this is the parent of field versions
     field_versions = relationship("FieldVersion", back_populates="word")
+
+    # word and tags are many to many
+    tags = relationship("TagWordAssociation", back_populates="word")
+
+
+class TagWordAssociation(Base):
+    __tablename__ = "tag_word_association"
+    tag_id = Column(String, ForeignKey("tags.id"), primary_key=True)
+    word_id = Column(String, ForeignKey("words.id"), primary_key=True)
+
+    tag = relationship("Tag", back_populates="words")
+    word = relationship("Word", back_populates="tags")
 
 
 class FieldVersion(Base):

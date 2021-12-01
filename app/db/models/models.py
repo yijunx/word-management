@@ -36,12 +36,13 @@ class User(Base):
     field_versions = relationship("FieldVersion", back_populates="creator")
     votes = relationship("Vote", back_populates="creator")
 
+
 class Tag(Base):
     # each word has a few tags
     # each tag can pop up a few words..
     __tablename__ = "tags"
     id = Column(String, primary_key=True, index=True)
-    content = Column(String, index=True)  
+    content = Column(String, index=True)
     # index, has to be unique, we will search based on this
     # thus indexed
     words = relationship("TagWordAssociation", back_populates="tag")
@@ -83,7 +84,6 @@ class TagWordAssociation(Base):
     __tablename__ = "tag_word_association"
     tag_id = Column(String, ForeignKey("tags.id"), primary_key=True)
     word_id = Column(String, ForeignKey("words.id"), primary_key=True)
-
     tag = relationship("Tag", back_populates="words")
     word = relationship("Word", back_populates="tags")
 

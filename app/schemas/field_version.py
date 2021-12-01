@@ -12,7 +12,6 @@ class ContentPatch(BaseModel):
 class FieldEnum(str, Enum):
     explanation = "explanation"
     usage = "usage"
-    tags = "tags"
     pronunciation = "pronunciation"
 
 

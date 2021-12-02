@@ -53,6 +53,9 @@ def _create_field_version_and_add_policy(
 def create_word(item_create: WordCreate, actor: User) -> WordWithFields:
     with get_db() as db:
         db_word = WordRepo.create(db=db, item_create=item_create, actor=actor)
+        # check the tags
+        # add association
+
         casbin_enforcer.add_policy(
             actor.id,
             get_resource_id_from_item_id(
@@ -81,15 +84,6 @@ def create_word(item_create: WordCreate, actor: User) -> WordWithFields:
                 field=FieldEnum.usage,
             )
             word_with_fields.usage = db_field_version.content
-        if item_create.tags:
-            db_field_version = _create_field_version_and_add_policy(
-                db=db,
-                word_id=db_word.id,
-                content=item_create.tags,
-                actor=actor,
-                field=FieldEnum.tags,
-            )
-            word_with_fields.tags = db_field_version.content
         if item_create.pronunciation:
             db_field_version = _create_field_version_and_add_policy(
                 db=db,

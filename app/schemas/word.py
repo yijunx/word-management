@@ -18,7 +18,7 @@ class WordCreate(BaseModel):
     explanation: str  # well you cannot submit without give explanation..
     pronunciation: Optional[str]
     usage: Optional[str]
-    tags: Optional[str]
+    tags: List[str]
     dialect: DialectEnum
 
 

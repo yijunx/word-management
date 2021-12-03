@@ -57,7 +57,7 @@ class WordWithFields(Word):
     explanation: Optional[str]
     pronunciation: Optional[str]
     usage: Optional[str]
-    tags: Optional[str]
+    tags: Optional[List[str]]
 
     class Config:
         orm_mode = True

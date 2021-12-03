@@ -9,6 +9,8 @@ import app.repo.word as WordRepo
 import app.repo.field_version as FieldVersionRepo
 import app.repo.suggestion as SuggestionRepo
 import app.repo.casbin as CasbinRepo
+import app.repo.tag as TagRepo
+import app.repo.tag_word_asso as TagWordAssoRepo
 from app.schemas.field_version import FieldEnum, FieldVersionCreate
 from app.schemas.word import (
     Word,
@@ -54,7 +56,11 @@ def create_word(item_create: WordCreate, actor: User) -> WordWithFields:
     with get_db() as db:
         db_word = WordRepo.create(db=db, item_create=item_create, actor=actor)
         # check the tags
-        # add association
+        tags = []
+        for tag_content in item_create.tags:
+            db_tag = TagRepo.get_or_create(db=db, content=tag_content)
+            _ = TagWordAssoRepo.create(db=db, word_id=db_word.id, tag_id=db_tag.id)
+            tags.append(db_tag.content)
 
         casbin_enforcer.add_policy(
             actor.id,
@@ -65,6 +71,7 @@ def create_word(item_create: WordCreate, actor: User) -> WordWithFields:
         )
 
         word_with_fields = WordWithFields.from_orm(db_word)
+        # word_with_fields.tags = tags
 
         if item_create.explanation:
             db_field_version = _create_field_version_and_add_policy(

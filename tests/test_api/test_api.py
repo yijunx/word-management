@@ -49,7 +49,9 @@ def test_create_same_word_from_user_two(
 def test_list_word_from_public(
     client_without_user: FlaskClient, word_create: WordCreate
 ):
-    r = client_without_user.get("/public_api/words")
+    r = client_without_user.get(
+        "/public_api/words", query_string={"tag": word_create.tags[0]}
+    )
     print(r.get_json())
     words_wth_paging = WordWithFieldsWithPaging(**r.get_json()["response"])
     assert word_create.explanation in [x.explanation for x in words_wth_paging.data]

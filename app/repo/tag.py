@@ -25,7 +25,7 @@ def get_or_create(db: Session, content: str) -> models.Tag:
 
 
 def get_by_content(db: Session, content: str) -> models.Tag:
-    db_item = db.query(models.Tag).filter(models.Tag.content == content)
+    db_item = db.query(models.Tag).filter(models.Tag.content == content).first()
     if not db_item:
         raise Exception("tag does not exist")
     return db_item

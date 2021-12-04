@@ -38,7 +38,12 @@ def delete(db: Session, tag_id: str) -> None:
 
 def get_all(db: Session, word_id: str) -> List[models.Tag]:
     # query = query.filter(models.Word.tags.any(models.Tag.id == db_tag.id))
-    query = db.query(models.Tag)
-    query = query.filter(models.Tag.words.any(models.Word.id == word_id))
+    query = (
+        db.query(models.Tag)
+        .join(models.Tag.words)
+        .filter(models.TagWordAssociation.word_id == word_id)
+    )
+    #  .filter(models.TagWordAssociation.word_id == word_id)
+    # query = db.query(models.Tag).filter(models.Tag.words.any(models.Word.id == word_id))
     db_items = query.order_by(models.Tag.content).all()
     return db_items

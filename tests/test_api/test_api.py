@@ -270,7 +270,9 @@ def test_get_field_versions_from_merged(
     assert word_create_to_merge.explanation in [
         x.content for x in field_versions_with_paging.data
     ]
-    assert word_create.explanation in [x.content for x in field_versions_with_paging.data]
+    assert word_create.explanation in [
+        x.content for x in field_versions_with_paging.data
+    ]
 
 
 def test_merge_with_user_account(client_from_user_two: FlaskClient):

@@ -88,7 +88,12 @@ def get_all(
 
     if query_pagination.tag:
         db_tag = TagRepo.get_by_content(db=db, content=query_pagination.tag)
-        query = query.filter(models.Word.tags.any(models.Tag.id == db_tag.id))
+        query = (
+            db.query(models.Word)
+            .join(models.Word.tags)
+            .filter(models.TagWordAssociation.tag_id == db_tag.id)
+        )
+        # query = query.filter(models.Word.tags.any(models.Tag.id == db_tag.id))
 
     if query_pagination.dialect:
         query = query.filter(models.Word.dialect == query_pagination.dialect)

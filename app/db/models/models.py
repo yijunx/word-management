@@ -161,7 +161,9 @@ class Vote(Base):
     created_by = Column(String, ForeignKey("users.id"), nullable=False)
 
     __table_args__ = (
-        Index("one_user_one_vote_one_field_version", version_id, created_by, unique=True),
+        Index(
+            "one_user_one_vote_one_field_version", version_id, created_by, unique=True
+        ),
     )
     # User is the parent of this
     creator = relationship("User", back_populates="votes")

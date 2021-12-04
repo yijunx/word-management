@@ -80,10 +80,13 @@ def get_all(
     #     query = query.filter(models.Word.tag.ilike(f"%#{query_pagination.tag}%"))
     # well tag must be separately managed in the tag table
     # and tags points to words
-    elif query_pagination.title:  # full text search we may need to use elastic
+    if query_pagination.title:  # full text search we may need to use elastic
+        # well the ilike here is a full table scan..
+        # it is pretty bad
         query = query.filter(models.Word.title.ilike(f"%{query_pagination.title}%"))
-    else:
-        pass
+
+    if query_pagination.tag:
+        query = query.filter(models.Word.tags.any(models.Tag.content == query_pagination.tag))
 
     if query_pagination.dialect:
         query = query.filter(models.Word.dialect == query_pagination.dialect)

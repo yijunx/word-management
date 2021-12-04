@@ -1,5 +1,5 @@
 from sqlalchemy import Column, String, DateTime
-from sqlalchemy.sql.schema import ForeignKey, UniqueConstraint
+from sqlalchemy.sql.schema import ForeignKey, UniqueConstraint, Index
 from sqlalchemy.sql.sqltypes import BigInteger, Boolean, Integer
 from sqlalchemy.orm import relationship
 from .base import Base
@@ -42,9 +42,7 @@ class Tag(Base):
     # each tag can pop up a few words..
     __tablename__ = "tags"
     id = Column(String, primary_key=True, index=True)
-    content = Column(String, index=True)
-    # index, has to be unique, we will search based on this
-    # thus indexed
+    content = Column(String, index=True, unique=True)
     words = relationship("TagWordAssociation", back_populates="tag")
 
 
@@ -84,6 +82,11 @@ class TagWordAssociation(Base):
     __tablename__ = "tag_word_association"
     tag_id = Column(String, ForeignKey("tags.id"), primary_key=True)
     word_id = Column(String, ForeignKey("words.id"), primary_key=True)
+
+    __table_args__ = (
+        Index("cannot_repeat", tag_id, word_id, unique=True),
+    )
+
     tag = relationship("Tag", back_populates="words")
     word = relationship("Word", back_populates="tags")
 
@@ -92,7 +95,7 @@ class FieldVersion(Base):
     __tablename__ = "field_versions"
 
     id = Column(String, primary_key=True, index=True)
-    word_id = Column(String, ForeignKey("words.id"), nullable=False)
+    word_id = Column(String, ForeignKey("words.id"), nullable=False, index=True)
     # explanation|usage|pronounciation|tag
     field = Column(String, nullable=False)
     content = Column(String, nullable=False)
@@ -125,7 +128,9 @@ class Suggestion(Base):
     id = Column(String, primary_key=True, index=True)
 
     word_id = Column(String, ForeignKey("words.id"), nullable=False)
-    version_id = Column(String, ForeignKey("field_versions.id"), nullable=False)
+    version_id = Column(
+        String, ForeignKey("field_versions.id"), nullable=False, index=True
+    )
     content = Column(String, nullable=False)
 
     accepted = Column(Boolean, nullable=False)
@@ -145,10 +150,10 @@ class Suggestion(Base):
 class Vote(Base):
     __tablename__ = "votes"
 
-    # one can only vote for one version
-    __table_args__ = (
-        UniqueConstraint("created_by", "version_id", name="_created_by_version_id_uc"),
-    )
+    # # one can only vote for one version
+    # __table_args__ = (
+    #     UniqueConstraint("created_by", "version_id", name="_created_by_version_id_uc"),
+    # )
 
     id = Column(String, primary_key=True, index=True)
     vote_up = Column(Boolean, nullable=False)
@@ -157,5 +162,8 @@ class Vote(Base):
     created_at = Column(DateTime, nullable=False)
     created_by = Column(String, ForeignKey("users.id"), nullable=False)
 
+    __table_args__ = (
+        Index("one_user_one_vote_one_field_version", id, created_by, unique=True),
+    )
     # User is the parent of this
     creator = relationship("User", back_populates="votes")

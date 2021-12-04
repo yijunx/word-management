@@ -11,10 +11,7 @@ def create(db: Session, content: str) -> models.Tag:
     with data from cookie
     there is no way other people create user for him/her
     """
-    db_item = models.User(
-        id=str(uuid.uuid4()),
-        content=content
-    )
+    db_item = models.User(id=str(uuid.uuid4()), content=content)
     db.add(db_item)
     try:
         db.flush()
@@ -28,5 +25,3 @@ def get_or_create(db: Session, content: str) -> models.Tag:
     if not db_item:
         db_item = create(db=db, content=content)
     return db_item
-
-

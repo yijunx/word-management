@@ -111,7 +111,7 @@ def _update_fields_of_an_empty_word(
     """this function updates word_with_fields inplace"""
     db_field_versions = FieldVersionRepo.get_all_field_versions_of_a_word(
         db=db, word_id=word_with_fields.id
-    )
+    )  # well here it is full table scan?????
     # create a hashmap..
     field_to_content_and_vote = {}
     for fv in db_field_versions:  # it is already sorted based on creatio

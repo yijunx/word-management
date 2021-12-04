@@ -1,3 +1,4 @@
+from typing import List
 from sqlalchemy.sql.expression import and_, or_
 from sqlalchemy.exc import IntegrityError
 from app.db.models import models
@@ -25,3 +26,24 @@ def get_or_create(db: Session, content: str) -> models.Tag:
     if not db_item:
         db_item = create(db=db, content=content)
     return db_item
+
+
+def delete_all(db: Session, word_id: str) -> None:
+    query = db.query(models.Tag).filter(
+        models.Tag.words.any(models.Word.id == word_id)
+    )
+    query.delete(synchronize_session=False)
+
+
+def get_all(db: Session, word_id: str) -> List[models.Tag]:
+
+    query = db.query(models.Tag).filter(
+        models.Tag.words.any(models.Word.id == word_id)
+    )
+
+    return query.all()
+
+
+
+
+

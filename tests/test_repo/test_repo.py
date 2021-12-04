@@ -5,9 +5,11 @@ import app.repo.word as WordRepo
 import app.repo.field_version as FieldVersionRepo
 import app.repo.suggestion as SuggestionRepo
 import app.repo.user as UserRepo
+import app.repo.tag as TagRepo
+import app.repo.tag_word_asso as TagWordAssoRepo
 from app.schemas.field_version import FieldEnum, FieldVersionCreate
 from app.schemas.suggestion import SuggestionCreate
-from app.schemas.word import WordCreate
+from app.schemas.word import WordCreate, WordQuery
 
 WORD_ID = ""
 VERSION_IDS = []
@@ -27,6 +29,22 @@ def test_create_word(db: Session, user_one: User, word_create: WordCreate):
     assert db_item.created_by == user_one.id
 
 
+def test_create_tag(db: Session, word_create: WordCreate):
+    for tag in word_create.tags:
+        db_tag = TagRepo.get_or_create(db=db, content=tag)
+        db_asso = TagWordAssoRepo.create(db=db, word_id=WORD_ID, tag_id=db_tag.id)
+
+
+def test_get_words_given_tag(db: Session, word_create: WordCreate):
+    db_items, _ = WordRepo.get_all(
+        db=db,
+        query_pagination=WordQuery(
+            tag=word_create.tag
+        )
+    )
+    assert WORD_ID in [x.id for x in db_items]
+
+
 def test_create_versions(db: Session, user_one: User, word_create: WordCreate):
     db_exp = FieldVersionRepo.create(
         db=db,
@@ -44,13 +62,6 @@ def test_create_versions(db: Session, user_one: User, word_create: WordCreate):
         ),
         actor=user_one,
     )
-    db_tag = FieldVersionRepo.create(
-        db=db,
-        item_create=FieldVersionCreate(
-            word_id=WORD_ID, field=FieldEnum.tags, content=word_create.tags
-        ),
-        actor=user_one,
-    )
     db_pro = FieldVersionRepo.create(
         db=db,
         item_create=FieldVersionCreate(
@@ -62,11 +73,10 @@ def test_create_versions(db: Session, user_one: User, word_create: WordCreate):
     )
 
     global VERSION_IDS
-    VERSION_IDS = [db_usg.id, db_exp.id, db_tag.id, db_pro.id]
+    VERSION_IDS = [db_usg.id, db_exp.id, db_pro.id]
 
     assert db_usg.word_id == WORD_ID
     assert db_exp.content == word_create.explanation
-    assert db_tag.created_by == user_one.id
     assert db_pro.active == True
     # below assert does not work because
     # db.flush() is removed in create()

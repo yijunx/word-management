@@ -27,7 +27,7 @@ def word_create() -> WordCreate:
         explanation="explanation",
         pronunciation="some string",
         usage="usage",
-        tags="tags",
+        tags=["tags"],
         dialect=DialectEnum.hangzhouhua,
     )
 
@@ -39,6 +39,6 @@ def word_create_to_merge() -> WordCreate:
         explanation="explanation2",
         pronunciation="some string2",
         usage="usage2",
-        tags="tags2",
+        tags=["tags2"],
         dialect=DialectEnum.hangzhouhua,
     )

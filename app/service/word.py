@@ -111,8 +111,7 @@ def _update_fields_of_an_empty_word(
     """this function updates word_with_fields inplace"""
     db_field_versions = FieldVersionRepo.get_all_field_versions_of_a_word(
         db=db, word_id=word_with_fields.id
-    )  # well here it is full table scan?????
-    # create a hashmap..
+    )
     field_to_content_and_vote = {}
     for fv in db_field_versions:  # it is already sorted based on creatio
         if fv.field not in field_to_content_and_vote:
@@ -157,7 +156,8 @@ def get_word(item_id: str) -> WordWithFields:
         db_word = WordRepo.get(db=db, item_id=item_id)
         word_with_fields = WordWithFields.from_orm(db_word)
         _update_fields_of_an_empty_word(db=db, word_with_fields=word_with_fields)
-
+        db_tags = TagRepo.get_all(db=db, word_id=db_word.id)
+        word_with_fields.tags = [x.content for x in db_tags]
     return word_with_fields
 
 

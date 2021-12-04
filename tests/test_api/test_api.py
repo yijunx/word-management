@@ -60,6 +60,15 @@ def test_list_word_from_public(
     assert r.status_code == 200
 
 
+def test_list_word_from_public_with_nonexist_tag(
+    client_without_user: FlaskClient, word_create: WordCreate
+):
+    r = client_without_user.get(
+        "/public_api/words", query_string={"tag": "something not there.."}
+    )
+    assert r.status_code == 404
+
+
 def test_patch_word_from_user_two(client_from_user_two: FlaskClient):
     r = client_from_user_two.patch(
         f"/private_api/words/{WORD_ID}", json={"title": WORD_NEW_TITLE}

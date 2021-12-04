@@ -5,6 +5,8 @@ from app.db.models import models
 from sqlalchemy.orm import Session
 import uuid
 
+from app.exceptions.word import TagDoesNotExist
+
 
 def create(db: Session, content: str) -> models.Tag:
     """ """
@@ -27,7 +29,7 @@ def get_or_create(db: Session, content: str) -> models.Tag:
 def get_by_content(db: Session, content: str) -> models.Tag:
     db_item = db.query(models.Tag).filter(models.Tag.content == content).first()
     if not db_item:
-        raise Exception("tag does not exist")
+        raise TagDoesNotExist(tag=content)
     return db_item
 
 

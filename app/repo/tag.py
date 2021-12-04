@@ -7,8 +7,7 @@ import uuid
 
 
 def create(db: Session, content: str) -> models.Tag:
-    """
-    """
+    """ """
     db_item = models.Tag(id=str(uuid.uuid4()), content=content)
     db.add(db_item)
     try:
@@ -32,12 +31,14 @@ def get_by_content(db: Session, content: str) -> models.Tag:
     return db_item
 
 
-
 def delete(db: Session, tag_id: str) -> None:
     query = db.query(models.Tag).filter(models.Tag.id == tag_id)
     query.delete(synchronize_session=False)
 
 
 def get_all(db: Session, word_id: str) -> List[models.Tag]:
-    query = db.query(models.Tag).filter(models.Tag.words.any(models.Word.id == word_id))
-    return query.all()
+    # query = query.filter(models.Word.tags.any(models.Tag.id == db_tag.id))
+    query = db.query(models.Tag)
+    query = query.filter(models.Tag.words.any(models.Word.id == word_id))
+    db_items = query.order_by(models.Tag.content).all()
+    return db_items

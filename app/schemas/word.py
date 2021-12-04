@@ -57,10 +57,10 @@ class WordWithFields(Word):
     explanation: Optional[str]
     pronunciation: Optional[str]
     usage: Optional[str]
-    tags: Optional[List[str]]
+    tags: List[str] = []
 
-    class Config:
-        orm_mode = True
+    # class Config:
+    #     orm_mode = True
 
 
 class WordWithFieldsWithPaging(BaseModel):

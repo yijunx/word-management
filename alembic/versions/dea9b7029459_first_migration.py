@@ -1,8 +1,8 @@
-"""remigration
+"""first migration
 
-Revision ID: a62ad390a162
+Revision ID: dea9b7029459
 Revises: 
-Create Date: 2021-12-04 06:12:50.350359
+Create Date: 2021-12-04 10:16:14.546284
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'a62ad390a162'
+revision = 'dea9b7029459'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -118,7 +118,7 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_votes_id'), 'votes', ['id'], unique=False)
-    op.create_index('one_user_one_vote_one_field_version', 'votes', ['id', 'created_by'], unique=True)
+    op.create_index('one_user_one_vote_one_field_version', 'votes', ['version_id', 'created_by'], unique=True)
     # ### end Alembic commands ###
 
 

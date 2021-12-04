@@ -69,9 +69,8 @@ def create_word(item_create: WordCreate, actor: User) -> WordWithFields:
             ),
             ResourceRightsEnum.own_word,
         )
-
-        word_with_fields = WordWithFields.from_orm(db_word)
-        # word_with_fields.tags = tags
+        word = Word.from_orm(db_word)
+        word_with_fields = WordWithFields(**word.dict(), tags=tags)
 
         if item_create.explanation:
             db_field_version = _create_field_version_and_add_policy(
@@ -142,7 +141,9 @@ def list_word(
             include_merged=include_merged,
         )
 
-        words_with_fields = [WordWithFields.from_orm(db_word) for db_word in db_words]
+        words_with_fields = [
+            WordWithFields(**Word.from_orm(db_word).dict()) for db_word in db_words
+        ]
 
         for w in words_with_fields:
             _update_fields_of_an_empty_word(db=db, word_with_fields=w)
@@ -154,10 +155,12 @@ def get_word(item_id: str) -> WordWithFields:
     """when viewer goes into the word"""
     with get_db() as db:
         db_word = WordRepo.get(db=db, item_id=item_id)
-        word_with_fields = WordWithFields.from_orm(db_word)
-        _update_fields_of_an_empty_word(db=db, word_with_fields=word_with_fields)
         db_tags = TagRepo.get_all(db=db, word_id=db_word.id)
-        word_with_fields.tags = [x.content for x in db_tags]
+        word = Word.from_orm(db_word)
+        word_with_fields = WordWithFields(
+            **word.dict(), tags=[x.content for x in db_tags]
+        )
+        _update_fields_of_an_empty_word(db=db, word_with_fields=word_with_fields)
     return word_with_fields
 
 
@@ -275,4 +278,5 @@ def delete_word(item_id) -> None:
         )
         SuggestionRepo.delete_all(db=db, word_id=item_id)
         FieldVersionRepo.delete_all(db=db, word_id=item_id)
+        TagWordAssoRepo.delete_all(db=db, word_id=item_id)
         WordRepo.delete(db=db, item_id=item_id)

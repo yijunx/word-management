@@ -23,7 +23,7 @@ def user_two() -> User:
 @pytest.fixture
 def word_create() -> WordCreate:
     return WordCreate(
-        title="title",
+        title="untitled",
         explanation="explanation",
         pronunciation="some string",
         usage="usage",

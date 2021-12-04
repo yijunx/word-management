@@ -35,7 +35,7 @@ def test_create_word_from_user_one(
     WORD_ID = word_with_fields.id
     assert r.status_code == 200
     assert word_with_fields.explanation == word_create.explanation
-    assert word_with_fields.tags == word_create.tags
+    assert set(word_with_fields.tags) == set(word_create.tags)
     assert word_with_fields.usage == word_create.usage
 
 
@@ -55,7 +55,6 @@ def test_list_word_from_public(
     assert word_create.explanation in [x.explanation for x in words_wth_paging.data]
     assert word_create.usage in [x.usage for x in words_wth_paging.data]
     assert word_create.pronunciation in [x.pronunciation for x in words_wth_paging.data]
-    assert word_create.tags in [x.tags for x in words_wth_paging.data]
     assert r.status_code == 200
 
 
@@ -187,7 +186,7 @@ def test_get_a_word_from_public(
     r = client_without_user.get(f"/public_api/words/{WORD_ID}")
     word = WordWithFields(**r.get_json()["response"])
     assert r.status_code == 200
-    assert word.tags == word_create.tags
+    assert set(word.tags) == set(word_create.tags)
 
 
 def test_list_word_contributors(client_without_user: FlaskClient):
@@ -245,7 +244,7 @@ def test_create_word_from_user_two(
     WORD_ID_TO_MERGE = word_with_fields.id
     assert r.status_code == 200
     assert word_with_fields.explanation == word_create_to_merge.explanation
-    assert word_with_fields.tags == word_create_to_merge.tags
+    assert set(word_with_fields.tags) == set(word_create_to_merge.tags)
     assert word_with_fields.usage == word_create_to_merge.usage
 
 
@@ -264,14 +263,14 @@ def test_get_field_versions_from_merged(
 ):
     r = client_without_user.get(
         f"/public_api/field_versions",
-        query_string={"word_id": WORD_ID, "field": "tags"},
+        query_string={"word_id": WORD_ID, "field": "explanation"},
     )
     field_versions_with_paging = FieldVersionWithPaging(**r.get_json()["response"])
     assert r.status_code == 200
-    assert word_create_to_merge.tags in [
+    assert word_create_to_merge.explanation in [
         x.content for x in field_versions_with_paging.data
     ]
-    assert word_create.tags in [x.content for x in field_versions_with_paging.data]
+    assert word_create.explanation in [x.content for x in field_versions_with_paging.data]
 
 
 def test_merge_with_user_account(client_from_user_two: FlaskClient):

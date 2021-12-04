@@ -8,11 +8,8 @@ import uuid
 
 def create(db: Session, content: str) -> models.Tag:
     """
-    here the user already create himself
-    with data from cookie
-    there is no way other people create user for him/her
     """
-    db_item = models.User(id=str(uuid.uuid4()), content=content)
+    db_item = models.Tag(id=str(uuid.uuid4()), content=content)
     db.add(db_item)
     try:
         db.flush()
@@ -22,19 +19,25 @@ def create(db: Session, content: str) -> models.Tag:
 
 
 def get_or_create(db: Session, content: str) -> models.Tag:
-    db_item = db.query(models.User).filter(content == content).first()
+    db_item = db.query(models.Tag).filter(models.Tag.content == content).first()
     if not db_item:
         db_item = create(db=db, content=content)
     return db_item
 
 
-def delete_all(db: Session, word_id: str) -> None:
-    query = db.query(models.Tag).filter(models.Tag.words.any(models.Word.id == word_id))
+def get_by_content(db: Session, content: str) -> models.Tag:
+    db_item = db.query(models.Tag).filter(models.Tag.content == content)
+    if not db_item:
+        raise Exception("tag does not exist")
+    return db_item
+
+
+
+def delete(db: Session, tag_id: str) -> None:
+    query = db.query(models.Tag).filter(models.Tag.id == tag_id)
     query.delete(synchronize_session=False)
 
 
 def get_all(db: Session, word_id: str) -> List[models.Tag]:
-
     query = db.query(models.Tag).filter(models.Tag.words.any(models.Word.id == word_id))
-
     return query.all()

@@ -10,6 +10,7 @@ from sqlalchemy.exc import IntegrityError
 from app.exceptions.word import WordAlreadyExist, WordDoesNotExist
 from datetime import datetime, timezone
 from app.repo.util import translate_query_pagination
+import app.repo.tag as TagRepo
 
 
 def create(db: Session, item_create: WordCreate, actor: User) -> models.Word:
@@ -83,11 +84,12 @@ def get_all(
     if query_pagination.title:  # full text search we may need to use elastic
         # well the ilike here is a full table scan..
         # it is pretty bad
-        query = query.filter(models.Word.title.ilike(f"%{query_pagination.title}%"))
+        query = query.filter(models.Word.title.contains(query_pagination.title))
 
     if query_pagination.tag:
+        db_tag = TagRepo.get_by_content(db=db, content=query_pagination.tag)
         query = query.filter(
-            models.Word.tags.any(models.Tag.content == query_pagination.tag)
+            models.Word.tags.any(models.Tag.id == db_tag.id)
         )
 
     if query_pagination.dialect:

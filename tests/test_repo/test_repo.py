@@ -13,6 +13,7 @@ from app.schemas.word import WordCreate, WordQuery
 
 WORD_ID = ""
 VERSION_IDS = []
+TAG_IDS = []
 SUGGESTION_ID = ""
 
 
@@ -30,17 +31,16 @@ def test_create_word(db: Session, user_one: User, word_create: WordCreate):
 
 
 def test_create_tag(db: Session, word_create: WordCreate):
+    global TAG_IDS
     for tag in word_create.tags:
         db_tag = TagRepo.get_or_create(db=db, content=tag)
-        db_asso = TagWordAssoRepo.create(db=db, word_id=WORD_ID, tag_id=db_tag.id)
+        _ = TagWordAssoRepo.create(db=db, word_id=WORD_ID, tag_id=db_tag.id)
+        TAG_IDS.append(db_tag.id)
 
 
-def test_get_words_given_tag(db: Session, word_create: WordCreate):
+def test_get_words_given_tag(db: Session):
     db_items, _ = WordRepo.get_all(
-        db=db,
-        query_pagination=WordQuery(
-            tag=word_create.tag
-        )
+        db=db, query_pagination=WordQuery(tag_id=TAG_IDS[0])  #
     )
     assert WORD_ID in [x.id for x in db_items]
 
@@ -113,6 +113,19 @@ def test_checking_user(db: Session, user_one: User):
 
 
 # starting to delete....
+def test_delete_tag_word_asso(db: Session):
+    TagWordAssoRepo.delete_all(db=db, word_id=WORD_ID)
+
+
+def test_delete_tag_word_asso(db: Session):
+    TagWordAssoRepo.delete_all(db=db, word_id=WORD_ID)
+
+
+def test_delete_tags(db: Session):
+    for tag_id in TAG_IDS:
+        TagRepo.delete(db=db, tag_id=tag_id)
+
+
 def test_delete_suggestion(db: Session):
     SuggestionRepo.delete(db=db, item_id=SUGGESTION_ID)
 

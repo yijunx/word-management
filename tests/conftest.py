@@ -27,7 +27,7 @@ def word_create() -> WordCreate:
         explanation="explanation",
         pronunciation="some string",
         usage="usage",
-        tags=["tags"],
+        tags=["xx", "yy", "zz"],
         dialect=DialectEnum.hangzhouhua,
     )
 

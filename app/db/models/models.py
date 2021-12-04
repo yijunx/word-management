@@ -83,9 +83,7 @@ class TagWordAssociation(Base):
     tag_id = Column(String, ForeignKey("tags.id"), primary_key=True)
     word_id = Column(String, ForeignKey("words.id"), primary_key=True)
 
-    __table_args__ = (
-        Index("cannot_repeat", tag_id, word_id, unique=True),
-    )
+    __table_args__ = (Index("cannot_repeat", tag_id, word_id, unique=True),)
 
     tag = relationship("Tag", back_populates="words")
     word = relationship("Word", back_populates="tags")

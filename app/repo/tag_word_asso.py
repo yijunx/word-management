@@ -1,4 +1,3 @@
-
 from sqlalchemy.exc import IntegrityError
 from app.db.models import models
 from sqlalchemy.orm import Session
@@ -24,5 +23,5 @@ def delete_all(db: Session, word_id: str = None, tag_id: str = None) -> None:
 
     if tag_id:
         query = query.filter(models.TagWordAssociation.tag_id == tag_id)
-    
+
     query.delete(synchronize_session=False)

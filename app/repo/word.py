@@ -86,7 +86,9 @@ def get_all(
         query = query.filter(models.Word.title.ilike(f"%{query_pagination.title}%"))
 
     if query_pagination.tag:
-        query = query.filter(models.Word.tags.any(models.Tag.content == query_pagination.tag))
+        query = query.filter(
+            models.Word.tags.any(models.Tag.content == query_pagination.tag)
+        )
 
     if query_pagination.dialect:
         query = query.filter(models.Word.dialect == query_pagination.dialect)

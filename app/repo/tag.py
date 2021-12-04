@@ -29,21 +29,12 @@ def get_or_create(db: Session, content: str) -> models.Tag:
 
 
 def delete_all(db: Session, word_id: str) -> None:
-    query = db.query(models.Tag).filter(
-        models.Tag.words.any(models.Word.id == word_id)
-    )
+    query = db.query(models.Tag).filter(models.Tag.words.any(models.Word.id == word_id))
     query.delete(synchronize_session=False)
 
 
 def get_all(db: Session, word_id: str) -> List[models.Tag]:
 
-    query = db.query(models.Tag).filter(
-        models.Tag.words.any(models.Word.id == word_id)
-    )
+    query = db.query(models.Tag).filter(models.Tag.words.any(models.Word.id == word_id))
 
     return query.all()
-
-
-
-
-

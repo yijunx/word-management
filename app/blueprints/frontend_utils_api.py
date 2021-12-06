@@ -6,7 +6,7 @@ from app.schemas.word import DialectEnum
 bp = Blueprint(
     name="frontend_utils_bp",
     import_name=__name__,
-    url_prefix="/public_api/words_frontend_utils",
+    url_prefix="/api/public/words_frontend_utils",
 )
 logger = get_logger(__name__)
 

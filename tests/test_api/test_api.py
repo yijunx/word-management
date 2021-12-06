@@ -29,7 +29,7 @@ WORD_NEW_TITLE = "new_title"
 def test_create_word_from_user_one(
     client_from_user_one: FlaskClient, word_create: WordCreate
 ):
-    r = client_from_user_one.post("/private_api/words", json=word_create.dict())
+    r = client_from_user_one.post("/api/private/words", json=word_create.dict())
     word_with_fields = WordWithFields(**r.get_json()["response"])
     global WORD_ID
     WORD_ID = word_with_fields.id
@@ -42,7 +42,7 @@ def test_create_word_from_user_one(
 def test_create_same_word_from_user_two(
     client_from_user_two: FlaskClient, word_create: WordCreate
 ):
-    r = client_from_user_two.post("/private_api/words", json=word_create.dict())
+    r = client_from_user_two.post("/api/private/words", json=word_create.dict())
     assert r.status_code == 409
 
 
@@ -50,7 +50,7 @@ def test_list_word_from_public(
     client_without_user: FlaskClient, word_create: WordCreate
 ):
     r = client_without_user.get(
-        "/public_api/words", query_string={"tag": word_create.tags[0]}
+        "/api/public/words", query_string={"tag": word_create.tags[0]}
     )
     print(r.get_json())
     words_wth_paging = WordWithFieldsWithPaging(**r.get_json()["response"])
@@ -64,20 +64,20 @@ def test_list_word_from_public_with_nonexist_tag(
     client_without_user: FlaskClient, word_create: WordCreate
 ):
     r = client_without_user.get(
-        "/public_api/words", query_string={"tag": "something not there.."}
+        "/api/public/words", query_string={"tag": "something not there.."}
     )
     assert r.status_code == 404
 
 
 def test_patch_word_from_user_two(client_from_user_two: FlaskClient):
     r = client_from_user_two.patch(
-        f"/private_api/words/{WORD_ID}", json={"title": WORD_NEW_TITLE}
+        f"/api/private/words/{WORD_ID}", json={"title": WORD_NEW_TITLE}
     )
     assert r.status_code == 403
 
 
 def test_list_my_word_from_user_two(client_from_user_two: FlaskClient):
-    r = client_from_user_two.get(f"/private_api/words")
+    r = client_from_user_two.get(f"/api/private/words")
     assert r.status_code == 200
     words_wth_paging = WordWithFieldsWithPaging(**r.get_json()["response"])
     assert len(words_wth_paging.data) == 0
@@ -85,7 +85,7 @@ def test_list_my_word_from_user_two(client_from_user_two: FlaskClient):
 
 def test_patch_word_from_user_one(client_from_user_one: FlaskClient):
     r = client_from_user_one.patch(
-        f"/private_api/words/{WORD_ID}", json={"title": "new_title"}
+        f"/api/private/words/{WORD_ID}", json={"title": "new_title"}
     )
     word = Word(**r.get_json()["response"])
     assert r.status_code == 200
@@ -94,7 +94,7 @@ def test_patch_word_from_user_one(client_from_user_one: FlaskClient):
 
 def test_add_field_version_from_user_two(client_from_user_two: FlaskClient):
     r = client_from_user_two.post(
-        f"/private_api/field_versions",
+        f"/api/private/field_versions",
         json=FieldVersionCreate(
             word_id=WORD_ID,
             field=FieldEnum.explanation,
@@ -109,7 +109,7 @@ def test_add_field_version_from_user_two(client_from_user_two: FlaskClient):
 
 def test_list_my_versions_from_user_two(client_from_user_two: FlaskClient):
     r = client_from_user_two.get(
-        f"/private_api/field_versions", query_string={"word_id": WORD_ID}
+        f"/api/private/field_versions", query_string={"word_id": WORD_ID}
     )
     field_versions_with_paging = FieldVersionWithPaging(**r.get_json()["response"])
     assert r.status_code == 200
@@ -121,7 +121,7 @@ def test_list_my_versions_from_user_two(client_from_user_two: FlaskClient):
 
 def test_list_field_version_from_public(client_without_user: FlaskClient):
     r = client_without_user.get(
-        f"/public_api/field_versions",
+        f"/api/public/field_versions",
         query_string={"word_id": WORD_ID, "field": "explanation"},
     )
     field_versions_with_paging = FieldVersionWithPaging(**r.get_json()["response"])
@@ -134,7 +134,7 @@ def test_list_field_version_from_public(client_without_user: FlaskClient):
 
 def test_patch_field_version(client_from_user_two: FlaskClient):
     r = client_from_user_two.patch(
-        f"/private_api/field_versions/{FIELD_VERSION_ID}",
+        f"/api/private/field_versions/{FIELD_VERSION_ID}",
         json={"content": "new content"},
     )
     assert r.status_code == 200
@@ -142,7 +142,7 @@ def test_patch_field_version(client_from_user_two: FlaskClient):
 
 def test_patch_field_version_from_user_one(client_from_user_one: FlaskClient):
     r = client_from_user_one.patch(
-        f"/private_api/field_versions/{FIELD_VERSION_ID}",
+        f"/api/private/field_versions/{FIELD_VERSION_ID}",
         json={"content": "new content"},
     )
     assert r.status_code == 403
@@ -150,7 +150,7 @@ def test_patch_field_version_from_user_one(client_from_user_one: FlaskClient):
 
 def test_add_suggestion_from_user_one(client_from_user_one: FlaskClient):
     r = client_from_user_one.post(
-        f"/private_api/suggestions",
+        f"/api/private/suggestions",
         json={
             "content": "suggestion",
             "word_id": WORD_ID,
@@ -166,7 +166,7 @@ def test_add_suggestion_from_user_one(client_from_user_one: FlaskClient):
 
 def test_patch_suggestion_from_user_two(client_from_user_two: FlaskClient):
     r = client_from_user_two.patch(
-        f"/private_api/suggestions/{SUGGESTION_ID}",
+        f"/api/private/suggestions/{SUGGESTION_ID}",
         json={"content": "new content"},
     )
     assert r.status_code == 403
@@ -174,7 +174,7 @@ def test_patch_suggestion_from_user_two(client_from_user_two: FlaskClient):
 
 def test_approve_suggestion_from_user_two(client_from_user_two: FlaskClient):
     r = client_from_user_two.post(
-        f"/private_api/field_versions/{FIELD_VERSION_ID}/accept_suggestion",
+        f"/api/private/field_versions/{FIELD_VERSION_ID}/accept_suggestion",
         json={"suggestion_id": SUGGESTION_ID},
     )
     assert r.status_code == 200
@@ -182,7 +182,7 @@ def test_approve_suggestion_from_user_two(client_from_user_two: FlaskClient):
 
 def test_list_suggestion_from_public(client_without_user: FlaskClient):
     r = client_without_user.get(
-        f"/public_api/suggestions",
+        f"/api/public/suggestions",
         query_string={"word_id": WORD_ID, "version_id": FIELD_VERSION_ID},
     )
     suggestion_with_paging = SuggestionWithPaging(**r.get_json()["response"])
@@ -194,14 +194,14 @@ def test_list_suggestion_from_public(client_without_user: FlaskClient):
 def test_get_a_word_from_public(
     client_without_user: FlaskClient, word_create: WordCreate
 ):
-    r = client_without_user.get(f"/public_api/words/{WORD_ID}")
+    r = client_without_user.get(f"/api/public/words/{WORD_ID}")
     word = WordWithFields(**r.get_json()["response"])
     assert r.status_code == 200
     assert set(word.tags) == set(word_create.tags)
 
 
 def test_list_word_contributors(client_without_user: FlaskClient):
-    r = client_without_user.get(f"/public_api/words/{WORD_ID}/contributors")
+    r = client_without_user.get(f"/api/public/words/{WORD_ID}/contributors")
     word_contribution = WordContribution(**r.get_json()["response"])
     assert r.status_code == 200
     assert len(word_contribution.data) == 2
@@ -211,7 +211,7 @@ def test_vote_a_field_version(
     client_from_user_two: FlaskClient,
 ):
     r = client_from_user_two.post(
-        f"/private_api/field_versions/{FIELD_VERSION_ID}/vote", json={"vote_up": True}
+        f"/api/private/field_versions/{FIELD_VERSION_ID}/vote", json={"vote_up": True}
     )
     assert r.status_code == 200
 
@@ -220,7 +220,7 @@ def test_vote_a_field_version_again(
     client_from_user_two: FlaskClient,
 ):
     r = client_from_user_two.post(
-        f"/private_api/field_versions/{FIELD_VERSION_ID}/vote", json={"vote_up": True}
+        f"/api/private/field_versions/{FIELD_VERSION_ID}/vote", json={"vote_up": True}
     )
     assert r.status_code == 409
 
@@ -229,7 +229,7 @@ def test_unvote_a_field_version(
     client_from_user_two: FlaskClient,
 ):
     r = client_from_user_two.post(
-        f"/private_api/field_versions/{FIELD_VERSION_ID}/unvote"
+        f"/api/private/field_versions/{FIELD_VERSION_ID}/unvote"
     )
     assert r.status_code == 200
 
@@ -238,7 +238,7 @@ def test_unvote_a_not_voted_field_version(
     client_from_user_one: FlaskClient,
 ):
     r = client_from_user_one.post(
-        f"/private_api/field_versions/{FIELD_VERSION_ID}/unvote"
+        f"/api/private/field_versions/{FIELD_VERSION_ID}/unvote"
     )
     assert r.status_code == 404
 
@@ -246,9 +246,8 @@ def test_unvote_a_not_voted_field_version(
 def test_create_word_from_user_two(
     client_from_user_two: FlaskClient, word_create_to_merge: WordCreate
 ):
-    """later we will merge"""
     r = client_from_user_two.post(
-        "/private_api/words", json=word_create_to_merge.dict()
+        "/api/private/words", json=word_create_to_merge.dict()
     )
     word_with_fields = WordWithFields(**r.get_json()["response"])
     global WORD_ID_TO_MERGE
@@ -261,7 +260,7 @@ def test_create_word_from_user_two(
 
 def test_merge_word(client_from_admin: FlaskClient):
     r = client_from_admin.post(
-        f"/private_api/words/{WORD_ID_TO_MERGE}/merge_into_another",
+        f"/api/private/words/{WORD_ID_TO_MERGE}/merge_into_another",
         json={"word_id_to_merge_into": WORD_ID},
     )
     assert r.status_code == 200
@@ -273,7 +272,7 @@ def test_get_field_versions_from_merged(
     word_create: WordCreate,
 ):
     r = client_without_user.get(
-        f"/public_api/field_versions",
+        f"/api/public/field_versions",
         query_string={"word_id": WORD_ID, "field": "explanation"},
     )
     field_versions_with_paging = FieldVersionWithPaging(**r.get_json()["response"])
@@ -288,7 +287,7 @@ def test_get_field_versions_from_merged(
 
 def test_merge_with_user_account(client_from_user_two: FlaskClient):
     r = client_from_user_two.post(
-        f"/private_api/words/{WORD_ID_TO_MERGE}/merge_into_another",
+        f"/api/private/words/{WORD_ID_TO_MERGE}/merge_into_another",
         json={"word_id_to_merge_into": WORD_ID},
     )
     assert r.status_code == 403
@@ -296,27 +295,27 @@ def test_merge_with_user_account(client_from_user_two: FlaskClient):
 
 def test_lock_word(client_from_admin: FlaskClient):
     r = client_from_admin.post(
-        f"/private_api/words/{WORD_ID}/lock",
+        f"/api/private/words/{WORD_ID}/lock",
     )
     assert r.status_code == 200
 
 
 def test_unlock_merged_word(client_from_admin: FlaskClient):
     r = client_from_admin.post(
-        f"/private_api/words/{WORD_ID_TO_MERGE}/lock",
+        f"/api/private/words/{WORD_ID_TO_MERGE}/lock",
     )
     assert r.status_code == 500
 
 
 def test_deactivate_word(client_from_admin: FlaskClient):
     r = client_from_admin.post(
-        f"/private_api/words/{WORD_ID}/deactivate",
+        f"/api/private/words/{WORD_ID}/deactivate",
     )
     assert r.status_code == 200
 
 
 def test_list_word_from_public_after_deactivate(client_without_user: FlaskClient):
-    r = client_without_user.get("/public_api/words")
+    r = client_without_user.get("/api/public/words")
     print(r.get_json())
     words_wth_paging = WordWithFieldsWithPaging(**r.get_json()["response"])
     assert WORD_NEW_TITLE not in [x.title for x in words_wth_paging.data]
@@ -324,7 +323,7 @@ def test_list_word_from_public_after_deactivate(client_without_user: FlaskClient
 
 def test_reactive_word(client_from_admin: FlaskClient):
     r = client_from_admin.post(
-        f"/private_api/words/{WORD_ID}/deactivate",
+        f"/api/private/words/{WORD_ID}/deactivate",
     )
     assert r.status_code == 200
 
@@ -332,7 +331,7 @@ def test_reactive_word(client_from_admin: FlaskClient):
 def test_list_word_from_public_after_reactivate(
     client_without_user: FlaskClient, word_create: WordCreate
 ):
-    r = client_without_user.get("/public_api/words")
+    r = client_without_user.get("/api/public/words")
     print(r.get_json())
     words_wth_paging = WordWithFieldsWithPaging(**r.get_json()["response"])
     assert WORD_NEW_TITLE in [x.title for x in words_wth_paging.data]

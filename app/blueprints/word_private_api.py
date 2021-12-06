@@ -11,7 +11,7 @@ from app.exceptions.word import WordAlreadyExist, WordDoesNotExist
 
 
 bp = Blueprint(
-    name="word_private_bp", import_name=__name__, url_prefix="/private_api/words"
+    name="word_private_bp", import_name=__name__, url_prefix="/api/private/words"
 )
 logger = get_logger(__name__)
 

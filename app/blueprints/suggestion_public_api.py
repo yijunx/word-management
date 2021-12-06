@@ -9,7 +9,7 @@ from app.util.response_util import create_response
 bp = Blueprint(
     name="suggestion_public_bp",
     import_name=__name__,
-    url_prefix="/public_api/suggestions",
+    url_prefix="/api/public/suggestions",
 )
 logger = get_logger(__name__)
 

@@ -12,7 +12,7 @@ from app.util.response_util import create_response
 bp = Blueprint(
     name="internal_bp",
     import_name=__name__,
-    url_prefix="/internal_api",
+    url_prefix="/api/internal",
 )
 
 logger = get_logger(__name__)

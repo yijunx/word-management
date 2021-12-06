@@ -17,7 +17,7 @@ from app.util.response_util import create_response
 bp = Blueprint(
     name="suggestion_private_bp",
     import_name=__name__,
-    url_prefix="/private_api/suggestions",
+    url_prefix="/api/private/suggestions",
 )
 
 logger = get_logger(__name__)

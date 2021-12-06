@@ -16,4 +16,3 @@ class TagDoesNotExist(Exception):
         self.http_code = 404
         self.message = f"Tag {tag} does not exist"
         super().__init__(self.message)
-

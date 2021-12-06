@@ -8,7 +8,7 @@ from app.util.response_util import create_response
 
 
 bp = Blueprint(
-    name="word_public_bp", import_name=__name__, url_prefix="/public_api/words"
+    name="word_public_bp", import_name=__name__, url_prefix="/api/public/words"
 )
 logger = get_logger(__name__)
 

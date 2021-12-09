@@ -131,6 +131,9 @@ def list_word(
 ) -> WordWithFieldsWithPaging:
     """used when user search for 62"""
 
+    # need to decide wordQuery if there is chinese... nvm it is auto
+    print(query)
+
     with get_db() as db:
         # retrieve the word
         db_words, paging = WordRepo.get_all(

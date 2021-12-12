@@ -1,4 +1,6 @@
 #! /bin/bash
 source ./admin_user.env
-echo starting server
+echo seed words...
+python seed_words.py
+echo starting server...
 gunicorn app.patched:app -w 1 -k gevent --bind 0.0.0.0:8000

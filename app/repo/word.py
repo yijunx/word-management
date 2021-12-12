@@ -14,9 +14,7 @@ import app.repo.tag as TagRepo
 
 
 def create(db: Session, item_create: WordCreate, actor: User) -> models.Word:
-
     now = datetime.now(timezone.utc)
-
     db_item = models.Word(
         id=str(uuid4()),
         title=item_create.title,
@@ -31,11 +29,16 @@ def create(db: Session, item_create: WordCreate, actor: User) -> models.Word:
     db.add(db_item)
     try:
         db.flush()
-    except IntegrityError:
+    except IntegrityError as e:
+        print("here2")
         db.rollback()
+        print(e)
         raise WordAlreadyExist(
             word_title=item_create.title, dialect=item_create.dialect
         )
+    except Exception:
+        db.rollback()
+        raise
     return db_item
 
 

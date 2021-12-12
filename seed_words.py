@@ -1,7 +1,9 @@
 from app.exceptions.word import WordAlreadyExist
 import app.service.word as WordService
 from app.schemas.word import DialectEnum, WordCreate
+import app.repo.user as UserRepo
 from app.schemas.user import User
+from app.db.database import get_db
 
 INITIAL_WORDS = [
     WordCreate(
@@ -38,6 +40,8 @@ ACTOR = User(
 
 
 def add_initial_words():
+    with get_db() as db:
+        UserRepo.get_or_create(db=db, actor=ACTOR)
     for word in INITIAL_WORDS:
         try:
             WordService.create_word(item_create=word, actor=ACTOR)

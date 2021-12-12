@@ -29,16 +29,11 @@ def create(db: Session, item_create: WordCreate, actor: User) -> models.Word:
     db.add(db_item)
     try:
         db.flush()
-    except IntegrityError as e:
-        print("here2")
+    except IntegrityError:
         db.rollback()
-        print(e)
         raise WordAlreadyExist(
             word_title=item_create.title, dialect=item_create.dialect
         )
-    except Exception:
-        db.rollback()
-        raise
     return db_item
 
 

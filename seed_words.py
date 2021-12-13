@@ -23,7 +23,7 @@ INITIAL_WORDS = [
     ),
     WordCreate(
         title="调羹儿",
-        explanation="spoon",
+        explanation="汤勺",
         tags=["勺子"],
         usage="把这个调羹儿给我",
         pronunciation="tiao2 'gang1 er",

@@ -22,7 +22,6 @@ from app.schemas.word import (
     WordWithFieldsWithPaging,
 )
 from app.schemas.user import User, UserInContribution
-from app.casbin.enforcer import casbin_enforcer
 from app.casbin.resource_id_converter import get_resource_id_from_item_id
 from sqlalchemy.orm import Session
 
@@ -39,16 +38,16 @@ def _create_field_version_and_add_policy(
         ),
         actor=actor,
     )
-    casbin_enforcer.add_policy(
-        actor.id,
-        get_resource_id_from_item_id(
-            # for field version resource name,
-            # word id is added for ease of deleting
-            item_id=db_field_version.id,
-            domain=ResourceDomainEnum.field_versions,
-        ),
-        ResourceRightsEnum.own_field_version,
-    )
+    # casbin_enforcer.add_policy(
+    #     actor.id,
+    #     get_resource_id_from_item_id(
+    #         # for field version resource name,
+    #         # word id is added for ease of deleting
+    #         item_id=db_field_version.id,
+    #         domain=ResourceDomainEnum.field_versions,
+    #     ),
+    #     ResourceRightsEnum.own_field_version,
+    # )
     return db_field_version
 
 
@@ -62,13 +61,15 @@ def create_word(item_create: WordCreate, actor: User) -> WordWithFields:
             _ = TagWordAssoRepo.create(db=db, word_id=db_word.id, tag_id=db_tag.id)
             tags.append(db_tag.content)
 
-        casbin_enforcer.add_policy(
-            actor.id,
-            get_resource_id_from_item_id(
-                item_id=db_word.id, domain=ResourceDomainEnum.words
-            ),
-            ResourceRightsEnum.own_word,
-        )
+        # no longer add policy
+        # casbin_enforcer.add_policy(
+        #     actor.id,
+        #     get_resource_id_from_item_id(
+        #         item_id=db_word.id, domain=ResourceDomainEnum.words
+        #     ),
+        #     ResourceRightsEnum.own_word,
+        # )
+
         word = Word.from_orm(db_word)
         word_with_fields = WordWithFields(**word.dict(), tags=tags)
 

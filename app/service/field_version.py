@@ -13,7 +13,8 @@ from app.schemas.field_version import (
 )
 from app.schemas.vote import Vote
 from app.schemas.user import User
-from app.casbin.enforcer import casbin_enforcer
+
+# from app.casbin.enforcer import casbin_enforcer
 from app.casbin.resource_id_converter import get_resource_id_from_item_id
 from app.schemas.vote import VoteCreate
 
@@ -23,14 +24,14 @@ def create_field_version(item_create: FieldVersionCreate, actor: User) -> FieldV
         db_field_version = FieldVersionRepo.create(
             db=db, item_create=item_create, actor=actor
         )
-        casbin_enforcer.add_policy(
-            actor.id,
-            get_resource_id_from_item_id(
-                item_id=db_field_version.id,
-                domain=ResourceDomainEnum.field_versions,
-            ),
-            ResourceRightsEnum.own_field_version,
-        )
+        # casbin_enforcer.add_policy(
+        #     actor.id,
+        #     get_resource_id_from_item_id(
+        #         item_id=db_field_version.id,
+        #         domain=ResourceDomainEnum.field_versions,
+        #     ),
+        #     ResourceRightsEnum.own_field_version,
+        # )
         field_version = FieldVersion.from_orm(db_field_version)
     return field_version
 

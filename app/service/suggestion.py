@@ -10,7 +10,8 @@ from app.schemas.suggestion import (
     SuggestionQuery,
 )
 from app.schemas.user import User
-from app.casbin.enforcer import casbin_enforcer
+
+# from app.casbin.enforcer import casbin_enforcer
 from app.casbin.resource_id_converter import get_resource_id_from_item_id
 
 
@@ -19,14 +20,14 @@ def create_suggestion(item_create: SuggestionCreate, actor: User) -> Suggestion:
         db_suggestion = SuggestionRepo.create(
             db=db, item_create=item_create, actor=actor
         )
-        casbin_enforcer.add_policy(
-            actor.id,
-            get_resource_id_from_item_id(
-                item_id=db_suggestion.id,
-                domain=ResourceDomainEnum.suggestions,
-            ),
-            ResourceRightsEnum.own_suggestion,
-        )
+        # casbin_enforcer.add_policy(
+        #     actor.id,
+        #     get_resource_id_from_item_id(
+        #         item_id=db_suggestion.id,
+        #         domain=ResourceDomainEnum.suggestions,
+        #     ),
+        #     ResourceRightsEnum.own_suggestion,
+        # )
         sugguestion = Suggestion.from_orm(db_suggestion)
     return sugguestion
 

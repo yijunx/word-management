@@ -25,7 +25,7 @@ def create_word(body: WordCreate):
         word = WordService.create_word(item_create=body, actor=actor)
     except WordAlreadyExist as e:
         return create_response(
-            success=False, message=e.message, status_code=e.http_code
+            success=False, message=e.message, status_code=e.status_code
         )
     except Exception as e:
         logger.debug(e, exc_info=True)
@@ -42,25 +42,32 @@ def get_my_words(query: WordQuery):
     well this is get my words, so need to know who this is, thus user login,
     verification, auth headers is needed, but, no need to pass casbin
     """
-    actor: User = request.environ["actor"]
+    actor, is_admin = request.environ["actor_info"]
+
     words_with_paging = WordService.list_word(
-        query=query, creator=actor, active_only=False, include_merged=True
+        query=query,
+        actor=actor,
+        is_admin=is_admin,
+        active_only=False,
+        include_merged=True,
     )
     return create_response(response=words_with_paging)
 
 
 @bp.route("/<item_id>", methods=["PATCH"])
-@authorize(
-    action=ResourceActionsEnum.update_word_title, domain=ResourceDomainEnum.words
-)
+@authorize(require_casbin=False)
 @validate()
 def patch_my_word(item_id: str, body: WordPatch):
-    actor: User = request.environ["actor"]
+    """Currently it is only used to update word title"""
+    actor, is_admin = request.environ["actor_info"]
+    # admin can do anything???
     try:
-        word = WordService.update_word_title(body=body, actor=actor, item_id=item_id)
+        word = WordService.update_word_title(
+            body=body, actor=actor, item_id=item_id, is_admin=is_admin
+        )
     except WordDoesNotExist as e:
         return create_response(
-            success=False, message=e.message, status_code=e.http_code
+            success=False, message=e.message, status_code=e.status_code
         )
     except Exception as e:
         logger.debug(e, exc_info=True)
@@ -77,7 +84,7 @@ def activate_or_deactivate(item_id: str):
         WordService.activate_or_deactive_word(item_id=item_id, actor=actor)
     except WordDoesNotExist as e:
         return create_response(
-            success=False, message=e.message, status_code=e.http_code
+            success=False, message=e.message, status_code=e.status_code
         )
     except Exception as e:
         logger.debug(e, exc_info=True)
@@ -98,7 +105,7 @@ def merge_into_another(body: WordMerge, item_id: str):
         )
     except WordDoesNotExist as e:
         return create_response(
-            success=False, message=e.message, status_code=e.http_code
+            success=False, message=e.message, status_code=e.status_code
         )
     except Exception as e:
         logger.debug(e, exc_info=True)
@@ -116,7 +123,7 @@ def lock_or_unlock_word(item_id: str):
         WordService.lock_or_unlock_word(item_id=item_id, actor=actor)
     except WordDoesNotExist as e:
         return create_response(
-            success=False, message=e.message, status_code=e.http_code
+            success=False, message=e.message, status_code=e.status_code
         )
     except Exception as e:
         logger.debug(e, exc_info=True)

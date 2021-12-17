@@ -27,6 +27,11 @@ class User(Base):
     name = Column(String, nullable=False)
     email = Column(String, nullable=False)
 
+    # role = Column(String, nullable=True)
+    # admin, xxx-admin, xxx-admin, how is the combo??
+    # so enable the mixmatch of the rights
+    # CASBIN IS STILL NEEDED FOR MULTIPLE DOMAIN.
+
     # we can add more things here like if the user's email has been verified
     # however the authen will reject him if email not verified..
 

@@ -47,7 +47,7 @@ def get_admin(user_id: str):
         r = UserService.get_admin_user(user_id=user_id)
     except AdminUserDoesNotExist as e:
         return create_response(
-            success=False, status_code=e.http_code, message=e.message
+            success=False, status_code=e.status_code, message=e.message
         )
     return create_response(response=r)
 

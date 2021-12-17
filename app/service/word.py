@@ -1,8 +1,6 @@
 from datetime import datetime, timezone
 from typing import List
-
-import casbin
-from app.casbin.role_definition import ResourceDomainEnum, ResourceRightsEnum
+from app.casbin.role_definition import ResourceActionsEnum, ResourceDomainEnum, ResourceRightsEnum
 from app.db.models import models
 from app.db.database import get_db
 import app.repo.word as WordRepo
@@ -24,6 +22,8 @@ from app.schemas.word import (
 from app.schemas.user import User, UserInContribution
 from app.casbin.resource_id_converter import get_resource_id_from_item_id
 from sqlalchemy.orm import Session
+from app.exceptions.general_exceptions import NotAuthorized
+
 
 
 def _create_field_version_and_add_policy(
@@ -126,21 +126,20 @@ def _update_fields_of_an_empty_word(
 
 def list_word(
     query: WordQuery,
-    creator: User = None,
+    actor: User = None,
     active_only: bool = True,
+    is_admin: bool = False,
     include_merged: bool = False,
 ) -> WordWithFieldsWithPaging:
     """used when user search for 62"""
-
-    # need to decide wordQuery if there is chinese... nvm it is auto
-    print(query)
 
     with get_db() as db:
         # retrieve the word
         db_words, paging = WordRepo.get_all(
             db=db,
             query_pagination=query,
-            creator=creator,
+            actor=actor,
+            is_admin=is_admin,
             active_only=active_only,
             include_merged=include_merged,
         )
@@ -169,6 +168,10 @@ def get_word(item_id: str) -> WordWithFields:
 
 
 def activate_or_deactive_word(item_id: str, actor: User) -> None:
+    
+    if not actor.is_word_admin:
+        raise NotAuthorized(actor=actor, resource_id_or_domain=ResourceDomainEnum.words, action=ResourceActionsEnum.deactivate_word)
+    
     with get_db() as db:
         db_word = WordRepo.get(db=db, item_id=item_id)
         if db_word.merged_to is None:
@@ -242,11 +245,18 @@ def get_contributor_of_word(item_id: str) -> WordContribution:
     return WordContribution(data=contributors)
 
 
-def update_word_title(body: WordPatch, actor: User, item_id: str) -> Word:
-    """used when the word owner update word title"""
+def update_word_title(
+    body: WordPatch, actor: User, item_id: str, is_admin: bool
+) -> Word:
+    """used when the word owner update word title,
+    only allow admin user and word creator to perform this action"""
 
     with get_db() as db:
+        # well here need to do at repo level?
         db_word = WordRepo.get(db=db, item_id=item_id)
+        if not is_admin:
+            if db_word.created_by != actor.id:
+                raise 
         if db_word.locked or db_word.merged_to:
             raise Exception("This word is locked")
         if body.title:
@@ -259,27 +269,8 @@ def update_word_title(body: WordPatch, actor: User, item_id: str) -> Word:
 def delete_word(item_id) -> None:
     """for test purpose"""
     with get_db() as db:
-        word = WordRepo.get(db=db, item_id=item_id)
-        for field_version in word.field_versions:
-            for suggestion in field_version.suggestions:
-                CasbinRepo.delete_policies_by_resource_id(
-                    db=db,
-                    resource_id=get_resource_id_from_item_id(
-                        item_id=suggestion.id, domain=ResourceDomainEnum.suggestions
-                    ),
-                )
-            CasbinRepo.delete_policies_by_resource_id(
-                db=db,
-                resource_id=get_resource_id_from_item_id(
-                    item_id=field_version.id, domain=ResourceDomainEnum.field_versions
-                ),
-            )
-        CasbinRepo.delete_policies_by_resource_id(
-            db=db,
-            resource_id=get_resource_id_from_item_id(
-                item_id=item_id, domain=ResourceDomainEnum.words
-            ),
-        )
+        # no longer deletes all the casbin stuff
+        # because they are not even created
         SuggestionRepo.delete_all(db=db, word_id=item_id)
         FieldVersionRepo.delete_all(db=db, word_id=item_id)
         TagWordAssoRepo.delete_all(db=db, word_id=item_id)

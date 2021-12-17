@@ -60,7 +60,8 @@ def get_all(
     query_pagination: WordQuery,
     active_only: bool = True,
     include_merged: bool = False,
-    creator: User = None,
+    actor: User = None,
+    is_admin: bool = False,
 ) -> Tuple[List[models.Word], ResponsePagination]:
 
     query = db.query(models.Word)
@@ -68,20 +69,22 @@ def get_all(
     if not include_merged:
         query = query.filter(models.Word.merged_to == None)
 
-    if creator:
-        query = query.filter(models.Word.created_by == creator.id)
+    if not is_admin:
+        if actor:
+            query = query.filter(models.Word.created_by == actor.id)
+        else:
+            # not admin user, and actor is not provided
+            # this is the public case of getting word
+            pass
+    else:
+        # this one is admin, and this guy can search for all words
+        # in the manage word page
+        pass
 
-    # search based on tag or title
-    # well.. word does not have TAG!!!!!
-    # TAG is in the fields version
-    # well this is bad
-    # if query_pagination.tag:  # well this is doing a full scan... this is bad..
-    #     query = query.filter(models.Word.tag.ilike(f"%#{query_pagination.tag}%"))
-    # well tag must be separately managed in the tag table
-    # and tags points to words
     if query_pagination.title:  # full text search we may need to use elastic
         # well the ilike here is a full table scan..
         # it is pretty bad
+        # umm this is a slow search
         query = query.filter(models.Word.title.contains(query_pagination.title))
 
     if query_pagination.tag:

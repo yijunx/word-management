@@ -98,7 +98,7 @@ def vote_a_field_version(body: VoteCreate, item_id: str):
     try:
         FieldVersionService.vote(item_id=item_id, vote_create=body, actor=actor)
     except VoteAlreadyExist as e:
-        return create_response(success=False, message=str(e), status_code=e.http_code)
+        return create_response(success=False, message=str(e), status_code=e.status_code)
     except Exception as e:
         logger.debug(e, exc_info=True)
         return create_response(success=False, message=str(e), status_code=500)
@@ -112,7 +112,7 @@ def unvote_a_field_version(item_id: str):
     try:
         FieldVersionService.unvote(item_id=item_id, actor=actor)
     except VoteDoesNotExist as e:
-        return create_response(success=False, message=str(e), status_code=e.http_code)
+        return create_response(success=False, message=str(e), status_code=e.status_code)
     except Exception as e:
         logger.debug(e, exc_info=True)
         return create_response(success=False, message=str(e), status_code=500)

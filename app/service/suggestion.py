@@ -44,10 +44,13 @@ def list_suggestions(
 
 
 def update_suggesion_content(
-    item_patch: SuggestionPatch, item_id: str, actor: User
+    item_patch: SuggestionPatch, item_id: str, actor: User, is_admin: bool
 ) -> Suggestion:
     with get_db() as db:
         db_item = SuggestionRepo.get(db=db, item_id=item_id)
+        if not is_admin:
+            if db_item.created_by != actor.id:
+                raise 
         db_item.modified_at = datetime.now(timezone.utc)
         db_item.content = item_patch.content
         item = Suggestion.from_orm(db_item)

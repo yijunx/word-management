@@ -50,21 +50,32 @@ def create_casbin_enforcer():
     # well we cannot add policy this way because there are additional columns
 
     # well need to group all below stuff into seed...
+
+    # well i think this is a wrong implementation
+    # haiz
     casbin_enforcer.add_policy(
         conf.WORD_ADMIN_ROLE_ID, ResourceDomainEnum.words, ResourceRightsEnum.admin
     )
     casbin_enforcer.add_policy(
-        conf.WORD_ADMIN_ROLE_ID,
+        conf.FIELD_VERSION_ADMIN_ROLE_ID,
         ResourceDomainEnum.field_versions,
         ResourceRightsEnum.admin,
     )
     casbin_enforcer.add_policy(
-        conf.WORD_ADMIN_ROLE_ID,
+        conf.SUGGESTION_ADMIN_ROLE_ID,
         ResourceDomainEnum.suggestions,
         ResourceRightsEnum.admin,
     )
     admin_user_id = seed_or_get_admin_user()
+    # shall we add admin role on each dialect???
+    # if so, how the enforcer enforces?
+    # and how a personal handles a few dialects?
+    # expertise table?
+    # maps user id to with dialect id?
+    # well lets do this later
     casbin_enforcer.add_grouping_policy(admin_user_id, conf.WORD_ADMIN_ROLE_ID)
+    casbin_enforcer.add_grouping_policy(admin_user_id, conf.FIELD_VERSION_ADMIN_ROLE_ID)
+    casbin_enforcer.add_grouping_policy(admin_user_id, conf.SUGGESTION_ADMIN_ROLE_ID)
     # here, at first, there is no admin, admin only added via user management...
     # it is done via internal api call
     # but we can create specific service admin in the seed of the user management service

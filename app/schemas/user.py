@@ -8,11 +8,17 @@ class User(BaseModel):
     name: str
     email: str
 
+    # admin info
+    is_word_admin: bool = False
+    is_field_version_admin: bool = False
+    is_suggestion_admin: bool = False
+
     class Config:
         orm_mode = True
 
 
 class UserPatch(BaseModel):
+    """used for internally update the name or email"""
     name: Optional[str]
     email: Optional[str]
 

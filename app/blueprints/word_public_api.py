@@ -26,7 +26,7 @@ def list_words(query: WordQuery):
         )
     except TagDoesNotExist as e:
         return create_response(
-            success=False, message=e.message, status_code=e.http_code
+            success=False, message=e.message, status_code=e.status_code
         )
     except Exception as e:
         logger.debug(e, exc_info=True)
@@ -42,7 +42,7 @@ def get_word(item_id: str):
         r = WordService.get_word(item_id=item_id)
     except WordDoesNotExist as e:
         return create_response(
-            success=False, message=e.message, status_code=e.http_code
+            success=False, message=e.message, status_code=e.status_code
         )
     except Exception as e:
         logger.debug(e, exc_info=True)
@@ -58,7 +58,7 @@ def get_word_contributors(item_id: str):
         r = WordService.get_contributor_of_word(item_id=item_id)
     except WordDoesNotExist as e:
         return create_response(
-            success=False, message=e.message, status_code=e.http_code
+            success=False, message=e.message, status_code=e.status_code
         )
     except Exception as e:
         logger.debug(e, exc_info=True)

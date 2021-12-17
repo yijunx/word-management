@@ -13,7 +13,11 @@ class Settings(BaseSettings):
 
     DEFAULT_PAGE_SIZE: int = 5
     CORS_ALLOWED_ORIGINS: str
+
+    # 3 domains
     WORD_ADMIN_ROLE_ID: str
+    FIELD_VERSION_ADMIN_ROLE_ID: str
+    SUGGESTION_ADMIN_ROLE_ID: str
 
     CELERY_SERVICE_NAME: str
     CELERY_BROKER: str

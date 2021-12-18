@@ -32,22 +32,17 @@ def authorize(
             casbin_enforcer.load_policy()
             actor = get_user_info_from_request(request=request)
             with get_db() as db:
-                db_user = UserRepo.get_or_create(db=db, actor=actor)
-                try:
-                    CasbinRepo.get_grouping(
-                        db=db, role_id=conf.WORD_ADMIN_ROLE_ID, user_id=db_user.id
-                    )
+                UserRepo.get_or_create(db=db, actor=actor)
 
-                    actor.is_word_admin = True
+            role_ids = casbin_enforcer.get_implicit_roles_for_user(actor.id)
+            if conf.WORD_ADMIN_ROLE_ID in role_ids:
+                actor.is_word_admin = True
 
-                    # temporarily i put here
-                    actor.is_field_version_admin = True
-                    actor.is_suggestion_admin = True
-                except AdminUserDoesNotExist:
-                    pass
+            if conf.FIELD_VERSION_ADMIN_ROLE_ID in role_ids:
+                actor.is_field_version_admin = True
 
-            # this could be a better way.. as this is reading from memory
-            print(casbin_enforcer.get_implicit_roles_for_user(actor.id))
+            if conf.SUGGESTION_ADMIN_ROLE_ID in role_ids:
+                actor.is_suggestion_admin = True
 
             request.environ["actor"] = actor
 

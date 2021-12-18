@@ -76,6 +76,13 @@ def test_patch_word_from_user_two(client_from_user_two: FlaskClient):
     assert r.status_code == 403
 
 
+def test_patch_word_from_admin(client_from_admin: FlaskClient):
+    r = client_from_admin.patch(
+        f"/api/private/words/{WORD_ID}", json={"title": WORD_NEW_TITLE}
+    )
+    assert r.status_code == 200
+
+
 def test_list_my_word_from_user_two(client_from_user_two: FlaskClient):
     r = client_from_user_two.get(f"/api/private/words")
     assert r.status_code == 200

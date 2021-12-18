@@ -43,19 +43,19 @@ class ResourceActionsEnum(str, Enum):
 
 
 resource_right_action_mapping: dict = {
-    ResourceRightsEnum.own_word: {
-        ResourceActionsEnum.update_word_title,
-    },
-    ResourceRightsEnum.own_field_version: {
-        ResourceActionsEnum.update_field_version_content,
-        ResourceActionsEnum.accept_or_reject_suggestion,
-    },
-    ResourceRightsEnum.own_suggestion: {
-        ResourceActionsEnum.update_suggestion_content,
-        ResourceActionsEnum.deactivate_suggestion,
-    },
+    # ResourceRightsEnum.own_word: {
+    #     ResourceActionsEnum.update_word_title,
+    # },
+    # ResourceRightsEnum.own_field_version: {
+    #     ResourceActionsEnum.update_field_version_content,
+    #     ResourceActionsEnum.accept_or_reject_suggestion,
+    # },
+    # ResourceRightsEnum.own_suggestion: {
+    #     ResourceActionsEnum.update_suggestion_content,
+    #     ResourceActionsEnum.deactivate_suggestion,
+    # },
     ResourceRightsEnum.admin: {
-        ResourceActionsEnum.update_word_title,
+        # ResourceActionsEnum.update_word_title,
         ResourceActionsEnum.lock_word,
         ResourceActionsEnum.merge_word,
         ResourceActionsEnum.deactivate_field_version,

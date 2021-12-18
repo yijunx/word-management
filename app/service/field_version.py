@@ -72,16 +72,18 @@ def list_field_version(
 
 
 def update_field_version_content(
-    item_patch: FieldVersionPatch, item_id: str, actor: User, is_admin: bool
+    item_patch: FieldVersionPatch, item_id: str, actor: User
 ) -> FieldVersion:
     with get_db() as db:
         db_item = FieldVersionRepo.get(db=db, item_id=item_id)
 
-        if not is_admin:
+        if not actor.is_field_version_admin:
             if db_item.created_by != actor.id:
                 raise NotAuthorized(
                     actor=actor,
-                    resource_id_or_domain=ResourceDomainEnum.suggestions,
+                    resource_id_or_domain=get_resource_id_from_item_id(
+                        item_id=item_id, domain=ResourceDomainEnum.suggestions
+                    ),
                     action=ResourceActionsEnum.update_field_version_content,
                 )
         db_item.modified_at = datetime.now(timezone.utc)

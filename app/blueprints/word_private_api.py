@@ -8,6 +8,7 @@ from app.schemas.word import WordCreate, WordMerge, WordPatch, WordQuery
 import app.service.word as WordService
 from app.util.response_util import create_response
 from app.exceptions.word import WordAlreadyExist, WordDoesNotExist
+from app.exceptions.general_exceptions import NotAuthorized
 
 
 bp = Blueprint(
@@ -42,12 +43,11 @@ def get_my_words(query: WordQuery):
     well this is get my words, so need to know who this is, thus user login,
     verification, auth headers is needed, but, no need to pass casbin
     """
-    actor, is_admin = request.environ["actor_info"]
+    actor = request.environ["actor"]
 
     words_with_paging = WordService.list_word(
         query=query,
         actor=actor,
-        is_admin=is_admin,
         active_only=False,
         include_merged=True,
     )
@@ -59,13 +59,11 @@ def get_my_words(query: WordQuery):
 @validate()
 def patch_my_word(item_id: str, body: WordPatch):
     """Currently it is only used to update word title"""
-    actor, is_admin = request.environ["actor_info"]
+    actor = request.environ["actor"]
     # admin can do anything???
     try:
-        word = WordService.update_word_title(
-            body=body, actor=actor, item_id=item_id, is_admin=is_admin
-        )
-    except WordDoesNotExist as e:
+        word = WordService.update_word_title(body=body, actor=actor, item_id=item_id)
+    except (WordDoesNotExist, NotAuthorized) as e:
         return create_response(
             success=False, message=e.message, status_code=e.status_code
         )

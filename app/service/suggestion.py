@@ -49,15 +49,17 @@ def list_suggestions(
 
 
 def update_suggesion_content(
-    item_patch: SuggestionPatch, item_id: str, actor: User, is_admin: bool
+    item_patch: SuggestionPatch, item_id: str, actor: User
 ) -> Suggestion:
     with get_db() as db:
         db_item = SuggestionRepo.get(db=db, item_id=item_id)
-        if not is_admin:
+        if not actor.is_suggestion_admin:
             if db_item.created_by != actor.id:
                 raise NotAuthorized(
                     actor=actor,
-                    resource_id_or_domain=ResourceDomainEnum.suggestions,
+                    resource_id_or_domain=get_resource_id_from_item_id(
+                        item_id=item_id, domain=ResourceDomainEnum.suggestions
+                    ),
                     action=ResourceActionsEnum.update_suggestion_content,
                 )
 

@@ -37,12 +37,14 @@ def authorize(
                     CasbinRepo.get_grouping(
                         db=db, role_id=conf.WORD_ADMIN_ROLE_ID, user_id=db_user.id
                     )
-                except AdminUserDoesNotExist:
+
                     actor.is_word_admin = True
 
                     # temporarily i put here
                     actor.is_field_version_admin = True
                     actor.is_suggestion_admin = True
+                except AdminUserDoesNotExist:
+                    pass
 
             # this could be a better way.. as this is reading from memory
             print(casbin_enforcer.get_implicit_roles_for_user(actor.id))

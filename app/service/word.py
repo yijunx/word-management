@@ -131,7 +131,6 @@ def list_word(
     query: WordQuery,
     actor: User = None,
     active_only: bool = True,
-    is_admin: bool = False,
     include_merged: bool = False,
 ) -> WordWithFieldsWithPaging:
     """used when user search for 62"""
@@ -142,7 +141,6 @@ def list_word(
             db=db,
             query_pagination=query,
             actor=actor,
-            is_admin=is_admin,
             active_only=active_only,
             include_merged=include_merged,
         )
@@ -171,10 +169,6 @@ def get_word(item_id: str) -> WordWithFields:
 
 
 def activate_or_deactive_word(item_id: str, actor: User) -> None:
-
-    # if not actor.is_word_admin:
-    #     raise NotAuthorized(actor=actor, resource_id_or_domain=ResourceDomainEnum.words, action=ResourceActionsEnum.deactivate_word)
-
     with get_db() as db:
         db_word = WordRepo.get(db=db, item_id=item_id)
         if db_word.merged_to is None:
@@ -248,18 +242,26 @@ def get_contributor_of_word(item_id: str) -> WordContribution:
     return WordContribution(data=contributors)
 
 
-def update_word_title(
-    body: WordPatch, actor: User, item_id: str, is_admin: bool
-) -> Word:
+def update_word_title(body: WordPatch, actor: User, item_id: str) -> Word:
     """used when the word owner update word title,
     only allow admin user and word creator to perform this action"""
 
     with get_db() as db:
         # well here need to do at repo level?
         db_word = WordRepo.get(db=db, item_id=item_id)
-        if not is_admin:
+        if not actor.is_word_admin:
             if db_word.created_by != actor.id:
-                raise
+                raise NotAuthorized(
+                    actor=actor,
+                    resource_id_or_domain=get_resource_id_from_item_id(
+                        item_id=item_id, domain=ResourceDomainEnum.words
+                    ),
+                    action=ResourceActionsEnum.deactivate_word,
+                )
+        #     else:
+        #         print("actor is creator")
+        # else:
+        #     print("well this is admin")
         if db_word.locked or db_word.merged_to:
             raise Exception("This word is locked")
         if body.title:

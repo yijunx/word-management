@@ -69,16 +69,14 @@ def get_all(
     if not include_merged:
         query = query.filter(models.Word.merged_to == None)
 
-    if not is_admin:
-        if actor:
+    if actor:
+        if not actor.is_word_admin:
             query = query.filter(models.Word.created_by == actor.id)
         else:
-            # not admin user, and actor is not provided
-            # this is the public case of getting word
+            # admin user
             pass
     else:
-        # this one is admin, and this guy can search for all words
-        # in the manage word page
+        # from public
         pass
 
     if query_pagination.title:  # full text search we may need to use elastic

@@ -1,5 +1,6 @@
 from flask import Blueprint, request
 from flask_pydantic import validate
+from app.exceptions.general_exceptions import NotAuthorized
 from app.util.app_logging import get_logger
 from app.casbin.decorator import authorize
 from app.casbin.role_definition import ResourceDomainEnum, ResourceActionsEnum
@@ -50,16 +51,17 @@ def list_my_suggestions(query: SuggestionQuery):
 
 
 @bp.route("/<item_id>", methods=["PATCH"])
-@authorize(
-    action=ResourceActionsEnum.update_suggestion_content,
-    domain=ResourceDomainEnum.suggestions,
-)
+@authorize(require_casbin=False)
 @validate()
 def update_my_suggestion(body: SuggestionPatch, item_id: str):
     actor: User = request.environ["actor"]
     try:
         r = SuggestionService.update_suggesion_content(
             item_patch=body, item_id=item_id, actor=actor
+        )
+    except NotAuthorized as e:
+        return create_response(
+            success=False, message=e.message, status_code=e.status_code
         )
     except Exception as e:
         logger.debug(e, exc_info=True)

@@ -1,5 +1,6 @@
 from flask import Blueprint, request
 from flask_pydantic import validate
+from app.exceptions.general_exceptions import NotAuthorized
 from app.exceptions.vote import VoteAlreadyExist, VoteDoesNotExist
 from app.schemas.suggestion import SuggestionAccept
 from app.schemas.vote import VoteCreate
@@ -55,16 +56,17 @@ def list_my_field_verions(query: FieldVersionQuery):
 
 
 @bp.route("/<item_id>", methods=["PATCH"])
-@authorize(
-    action=ResourceActionsEnum.update_field_version_content,
-    domain=ResourceDomainEnum.field_versions,
-)
+@authorize(require_casbin=False)
 @validate()
 def update_my_field_version(body: FieldVersionPatch, item_id: str):
     actor: User = request.environ["actor"]
     try:
         field_version = FieldVersionService.update_field_version_content(
             item_patch=body, item_id=item_id, actor=actor
+        )
+    except NotAuthorized as e:
+        return create_response(
+            success=False, message=e.message, status_code=e.status_code
         )
     except Exception as e:
         logger.debug(e, exc_info=True)
@@ -73,16 +75,17 @@ def update_my_field_version(body: FieldVersionPatch, item_id: str):
 
 
 @bp.route("/<item_id>/accept_suggestion", methods=["POST"])
-@authorize(
-    action=ResourceActionsEnum.accept_or_reject_suggestion,
-    domain=ResourceDomainEnum.field_versions,
-)
+@authorize(require_casbin=False)
 @validate()
 def accept_suggestion_to_my_field_version(body: SuggestionAccept, item_id: str):
     actor: User = request.environ["actor"]
     try:
         FieldVersionService.accept_suggestion_to_my_version(
             item_id=item_id, suggestion_id=body.suggestion_id, actor=actor
+        )
+    except NotAuthorized as e:
+        return create_response(
+            success=False, message=e.message, status_code=e.status_code
         )
     except Exception as e:
         logger.debug(e, exc_info=True)

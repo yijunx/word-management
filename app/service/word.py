@@ -1,16 +1,13 @@
 from datetime import datetime, timezone
-from typing import List
 from app.casbin.role_definition import (
     ResourceActionsEnum,
     ResourceDomainEnum,
-    ResourceRightsEnum,
 )
 from app.db.models import models
 from app.db.database import get_db
 import app.repo.word as WordRepo
 import app.repo.field_version as FieldVersionRepo
 import app.repo.suggestion as SuggestionRepo
-import app.repo.casbin as CasbinRepo
 import app.repo.tag as TagRepo
 import app.repo.tag_word_asso as TagWordAssoRepo
 from app.schemas.field_version import FieldEnum, FieldVersionCreate
@@ -208,14 +205,22 @@ def merge_word(item_id: str, merged_to_word_id: str, actor: User) -> None:
             db_word.locked = True
             db_word.locked_by = actor.id
 
-            # need to update the field versions and suggestions also
+            # need to combine the tag also
             FieldVersionRepo.replace_word_id(
                 db=db, old_word_id=db_word.id, new_word_id=merged_to_word_id
             )
             SuggestionRepo.replace_word_id(
                 db=db, old_word_id=db_word.id, new_word_id=merged_to_word_id
             )
+            for tag_word_asso in db_word.tags:
+                TagWordAssoRepo.get_or_create(
+                    db=db, word_id=merged_to_db_word.id, tag_id=tag_word_asso.tag_id
+                )
+
+            TagWordAssoRepo.delete_all(db=db, word_id=db_word.id)
+
         else:
+            # give some valid msg based on the situation
             raise Exception("cannot merge!")
 
 
@@ -274,8 +279,6 @@ def update_word_title(body: WordPatch, actor: User, item_id: str) -> Word:
 def delete_word(item_id) -> None:
     """for test purpose"""
     with get_db() as db:
-        # no longer deletes all the casbin stuff
-        # because they are not even created
         SuggestionRepo.delete_all(db=db, word_id=item_id)
         FieldVersionRepo.delete_all(db=db, word_id=item_id)
         TagWordAssoRepo.delete_all(db=db, word_id=item_id)

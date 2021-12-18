@@ -1,6 +1,11 @@
 from datetime import datetime, timezone
-from app.casbin.role_definition import ResourceDomainEnum, ResourceRightsEnum
+from app.casbin.role_definition import (
+    ResourceActionsEnum,
+    ResourceDomainEnum,
+    ResourceRightsEnum,
+)
 from app.db.database import get_db
+from app.exceptions.general_exceptions import NotAuthorized
 import app.repo.suggestion as SuggestionRepo
 from app.schemas.suggestion import (
     SuggestionCreate,
@@ -50,7 +55,12 @@ def update_suggesion_content(
         db_item = SuggestionRepo.get(db=db, item_id=item_id)
         if not is_admin:
             if db_item.created_by != actor.id:
-                raise 
+                raise NotAuthorized(
+                    actor=actor,
+                    resource_id_or_domain=ResourceDomainEnum.suggestions,
+                    action=ResourceActionsEnum.update_suggestion_content,
+                )
+
         db_item.modified_at = datetime.now(timezone.utc)
         db_item.content = item_patch.content
         item = Suggestion.from_orm(db_item)

@@ -1,6 +1,12 @@
 from datetime import datetime, timezone
-from app.casbin.role_definition import ResourceDomainEnum, ResourceRightsEnum
+from app.casbin.role_definition import (
+    ResourceActionsEnum,
+    ResourceDomainEnum,
+    ResourceRightsEnum,
+)
 from app.db.database import get_db
+from app.db.models.models import FieldVersion as FieldVersionORM
+from app.exceptions.general_exceptions import NotAuthorized
 import app.repo.field_version as FieldVersionRepo
 import app.repo.vote as VoteRepo
 import app.repo.suggestion as SuggestionRepo
@@ -66,10 +72,18 @@ def list_field_version(
 
 
 def update_field_version_content(
-    item_patch: FieldVersionPatch, item_id: str, actor: User
+    item_patch: FieldVersionPatch, item_id: str, actor: User, is_admin: bool
 ) -> FieldVersion:
     with get_db() as db:
         db_item = FieldVersionRepo.get(db=db, item_id=item_id)
+
+        if not is_admin:
+            if db_item.created_by != actor.id:
+                raise NotAuthorized(
+                    actor=actor,
+                    resource_id_or_domain=ResourceDomainEnum.suggestions,
+                    action=ResourceActionsEnum.update_field_version_content,
+                )
         db_item.modified_at = datetime.now(timezone.utc)
         db_item.content = item_patch.content
         item = FieldVersion.from_orm(db_item)
@@ -82,7 +96,8 @@ def accept_suggestion_to_my_version(
 ) -> None:
     with get_db() as db:
         db_suggestion = SuggestionRepo.get(db=db, item_id=suggestion_id)
-        if db_suggestion.field_version.id == item_id:
+        db_field_version: FieldVersionORM = db_suggestion.field_version
+        if db_field_version.id == item_id and db_field_version.created_by == actor.id:
             db_suggestion.accepted = True
         else:
             raise Exception("suggestion and item id not match")

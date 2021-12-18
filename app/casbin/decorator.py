@@ -43,13 +43,11 @@ def authorize(
                     # temporarily i put here
                     actor.is_field_version_admin = True
                     actor.is_suggestion_admin = True
-            
+
             # this could be a better way.. as this is reading from memory
             print(casbin_enforcer.get_implicit_roles_for_user(actor.id))
-            
 
             request.environ["actor"] = actor
-
 
             # now is_admin is a few meanings
 

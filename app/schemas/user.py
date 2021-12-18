@@ -19,6 +19,7 @@ class User(BaseModel):
 
 class UserPatch(BaseModel):
     """used for internally update the name or email"""
+
     name: Optional[str]
     email: Optional[str]
 

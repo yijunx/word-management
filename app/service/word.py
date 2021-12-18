@@ -1,6 +1,10 @@
 from datetime import datetime, timezone
 from typing import List
-from app.casbin.role_definition import ResourceActionsEnum, ResourceDomainEnum, ResourceRightsEnum
+from app.casbin.role_definition import (
+    ResourceActionsEnum,
+    ResourceDomainEnum,
+    ResourceRightsEnum,
+)
 from app.db.models import models
 from app.db.database import get_db
 import app.repo.word as WordRepo
@@ -23,7 +27,6 @@ from app.schemas.user import User, UserInContribution
 from app.casbin.resource_id_converter import get_resource_id_from_item_id
 from sqlalchemy.orm import Session
 from app.exceptions.general_exceptions import NotAuthorized
-
 
 
 def _create_field_version_and_add_policy(
@@ -168,10 +171,10 @@ def get_word(item_id: str) -> WordWithFields:
 
 
 def activate_or_deactive_word(item_id: str, actor: User) -> None:
-    
-    if not actor.is_word_admin:
-        raise NotAuthorized(actor=actor, resource_id_or_domain=ResourceDomainEnum.words, action=ResourceActionsEnum.deactivate_word)
-    
+
+    # if not actor.is_word_admin:
+    #     raise NotAuthorized(actor=actor, resource_id_or_domain=ResourceDomainEnum.words, action=ResourceActionsEnum.deactivate_word)
+
     with get_db() as db:
         db_word = WordRepo.get(db=db, item_id=item_id)
         if db_word.merged_to is None:
@@ -256,7 +259,7 @@ def update_word_title(
         db_word = WordRepo.get(db=db, item_id=item_id)
         if not is_admin:
             if db_word.created_by != actor.id:
-                raise 
+                raise
         if db_word.locked or db_word.merged_to:
             raise Exception("This word is locked")
         if body.title:

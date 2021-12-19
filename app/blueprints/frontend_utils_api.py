@@ -17,8 +17,14 @@ def list_dialects():
     thus in this endpoint, we do not know the user, and does not require casbin
 
     """
+    response = [{"name": x.value} for x in DialectEnum]
+    i = 0
+    for x in response:
+        x["id"] = i
+        i = i + 1
+
     return {
-        "response": [x.value for x in DialectEnum],
+        "response": response,
         "success": True,
         "message": None,
     }

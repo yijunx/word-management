@@ -14,6 +14,8 @@ import app.repo.tag as TagRepo
 
 
 def create(db: Session, item_create: WordCreate, actor: User) -> models.Word:
+    if item_create.dialect == "":
+        raise Exception("dialect cannot be empty")
     now = datetime.now(timezone.utc)
     db_item = models.Word(
         id=str(uuid4()),

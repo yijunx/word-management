@@ -8,9 +8,9 @@ from app.schemas.user import UserInContribution
 
 
 class DialectEnum(str, Enum):
+    anyhua = ""
     hangzhouhua = "杭州话"
     guangdonghua = "广东话"
-    anyhua = ""
 
 
 class WordCreate(BaseModel):

@@ -61,7 +61,6 @@ def get_all(
     active_only: bool = True,
     include_merged: bool = False,
     actor: User = None,
-    is_admin: bool = False,
 ) -> Tuple[List[models.Word], ResponsePagination]:
 
     query = db.query(models.Word)
